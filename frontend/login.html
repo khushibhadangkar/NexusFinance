@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Finance AI | Authentication</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a0ca3;
+            --primary-light: #4895ef;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-700: #495057;
+            --gray-900: #212529;
+            
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+    background: linear-gradient(135deg, #f5f7ff 0%, #e6e9ff 100%);
+    color: var(--gray-900);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    justify-content: center; 
+}
+
+.header {
+    position: absolute; 
+    top: 30px; 
+    left: 0; 
+    right: 0; 
+    text-align: center;
+    margin-bottom: 0;
+}
+        
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            font-size: 28px;
+            color: var(--primary);
+            background: rgba(67, 97, 238, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo-text {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .tagline {
+            color: var(--gray-700);
+            font-size: 16px;
+        }
+        
+        .auth-container {
+    max-width: 400px;
+    width: 100%;
+    margin: auto; 
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    padding: 30px;
+}
+        
+        .form-tabs {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .form-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 2px solid transparent;
+        }
+        
+        .form-tab.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--gray-900);
+        }
+        
+        .form-subtitle {
+            color: var(--gray-700);
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--gray-900);
+            font-size: 14px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--gray-300);
+            border-radius: 10px;
+            font-size: 15px;
+            transition: var(--transition);
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .password-toggle {
+            position: relative;
+        }
+        
+        .password-toggle .form-input {
+            padding-right: 50px;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray-700);
+            cursor: pointer;
+        }
+        
+        .form-options {
+            display: flex;
+            justify-content: centre;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .forgot-password {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 16px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+        
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: var(--gray-700);
+            font-size: 14px;
+        }
+        
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--gray-300);
+        }
+        
+        .auth-divider span {
+            padding: 0 15px;
+        }
+        
+        .social-auth {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        
+        .social-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+        }
+        
+        .social-btn:hover {
+            border-color: var(--primary);
+        }
+        
+        .auth-switch {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--gray-700);
+            font-size: 14px;
+        }
+        
+        .auth-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .auth-link:hover {
+            text-decoration: underline;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: var(--gray-700);
+            font-size: 13px;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        
+        .footer-link {
+            color: var(--gray-700);
+            text-decoration: none;
+        }
+        
+        .footer-link:hover {
+            color: var(--primary);
+        }
+        
+        @media (max-width: 480px) {
+            .auth-container {
+                padding: 25px 20px;
+            }
+            
+            .social-auth {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    
+    <!-- Auth Container -->
+    <div class="auth-container">
+        <div class="form-tabs">
+            <div class="form-tab active" data-tab="login">Sign In</div>
+            <div class="form-tab" data-tab="signup">Create Account</div>
+        </div>
+        
+        <!-- Login Form -->
+        <form id="login-form" class="auth-form active" action="dashboard.html" method="GET">
+            <h3 class="form-title">Welcome back</h3>
+            <p class="form-subtitle">Sign in to access your dashboard</p>
+            
+            <div class="form-group">
+                <label for="login-email" class="form-label">Email Address</label>
+                <input type="email" id="login-email" class="form-input" placeholder="name@company.com" required>
+            </div>
+            
+            <div class="form-group password-toggle">
+                <label for="login-password" class="form-label">Password</label>
+                <input type="password" id="login-password" class="form-input" placeholder="••••••••" required>
+                <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+                    <span class="material-icons">visibility</span>
+                </button>
+            </div>
+            
+            <div class="form-options">
+                <label class="remember-me">
+                    <input type="checkbox" id="remember-me">
+                    <span>Remember me</span>
+                </label>
+                <a href="#" class="forgot-password">Forgot password?</a>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Sign In</button>
+            
+            <div class="auth-divider">
+                <span>Or continue with</span>
+            </div>
+            
+            <div class="social-auth">
+                <button type="button" class="social-btn">
+                    <span class="material-icons" style="color: #DB4437;">mail</span>
+                    Google
+                </button>
+                <button type="button" class="social-btn">
+                    <span class="material-icons" style="color: #000;">phone_iphone</span>
+                    Apple
+                </button>
+            </div>
+            
+            <div class="auth-switch">
+                <p>Don't have an account? <span class="auth-link" data-tab="signup">Sign up</span></p>
+            </div>
+        </form>
+        
+        <!-- Signup Form -->
+        <form id="signup-form" class="auth-form" action="dashboard.html" method="GET">
+            <h3 class="form-title">Create account</h3>
+            <p class="form-subtitle">Get started with your free account</p>
+            
+            <div class="form-group">
+                <label for="signup-name" class="form-label">Full Name</label>
+                <input type="text" id="signup-name" class="form-input" placeholder="John Doe" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="signup-email" class="form-label">Email Address</label>
+                <input type="email" id="signup-email" class="form-input" placeholder="name@company.com" required>
+            </div>
+            
+            <div class="form-group password-toggle">
+                <label for="signup-password" class="form-label">Password</label>
+                <input type="password" id="signup-password" class="form-input" placeholder="••••••••" required>
+                <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+                    <span class="material-icons">visibility</span>
+                </button>
+            </div>
+            
+            <div class="form-group password-toggle">
+                <label for="confirm-password" class="form-label">Confirm Password</label>
+                <input type="password" id="confirm-password" class="form-input" placeholder="••••••••" required>
+                <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+                    <span class="material-icons">visibility</span>
+                </button>
+            </div>
+            
+            <div class="form-options">
+                <label class="remember-me">
+                    <input type="checkbox" id="terms-agree" required>
+                    <span>I agree to the <a href="#" class="auth-link">Terms & Privacy</a></span>
+                </label>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Create Account</button>
+            
+            <div class="auth-divider">
+                <span>Or continue with</span>
+            </div>
+            
+            <div class="social-auth">
+                <button type="button" class="social-btn">
+                    <span class="material-icons" style="color: #DB4437;">mail</span>
+                    Google
+                </button>
+                <button type="button" class="social-btn">
+                    <span class="material-icons" style="color: #000;">phone_iphone</span>
+                    Apple
+                </button>
+            </div>
+            
+            <div class="auth-switch">
+                <p>Already have an account? <span class="auth-link" data-tab="login">Sign in</span></p>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+        <div>© 2023 Nexus Finance AI. All rights reserved.</div>
+        <div class="footer-links">
+            <a href="#" class="footer-link">Privacy Policy</a>
+            <a href="#" class="footer-link">Terms of Service</a>
+            <a href="#" class="footer-link">Contact Us</a>
+        </div>
+    </div>
+    
+ <script>
+        // API Configuration
+        const API_BASE_URL = 'https://nexus-finance-ai.onrender.com';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            const tabs = document.querySelectorAll('.form-tab');
+            const forms = document.querySelectorAll('.auth-form');
+
+            // --- Tab Switching Logic ---
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    switchTabs(this.getAttribute('data-tab'));
+                });
+            });
+
+            const authLinks = document.querySelectorAll('.auth-link[data-tab]');
+            authLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    switchTabs(this.getAttribute('data-tab'));
+                });
+            });
+
+            function switchTabs(tabId) {
+                tabs.forEach(t => t.classList.remove('active'));
+                document.querySelector(`.form-tab[data-tab="${tabId}"]`).classList.add('active');
+                
+                forms.forEach(form => form.classList.remove('active'));
+                document.getElementById(`${tabId}-form`).classList.add('active');
+            }
+
+            // --- Password Toggle Logic ---
+            const togglePasswordButtons = document.querySelectorAll('.toggle-password');
+            togglePasswordButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const input = this.previousElementSibling;
+                    const icon = this.querySelector('.material-icons');
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.textContent = 'visibility_off';
+                    } else {
+                        input.type = 'password';
+                        icon.textContent = 'visibility';
+                    }
+                });
+            });
+
+            // --- ✅ NEW: Login Form Submit ---
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                const button = loginForm.querySelector('button[type="submit"]');
+                button.textContent = 'Signing In...';
+                button.disabled = true;
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: email, password: password })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Login failed');
+                    }
+                    
+                    // SUCCESS!
+                    // 1. Save the token
+                    localStorage.setItem('jwt_token', data.token);
+                    
+                    // 2. Save user info (from the token payload, if you parse it, or from the response)
+                    // For simplicity, we'll just save the token.
+                    
+                    // 3. Redirect to dashboard
+                    window.location.href = 'dashboard.html';
+
+                } catch (error) {
+                    // Use the notification system
+                    window.showToast(error.message, 'error');
+                    button.textContent = 'Sign In';
+                    button.disabled = false;
+                }
+            });
+
+            // --- ✅ NEW: Signup Form Submit ---
+            signupForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const name = document.getElementById('signup-name').value;
+                const email = document.getElementById('signup-email').value;
+                const password = document.getElementById('signup-password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+                
+                if (password !== confirmPassword) {
+                    window.showToast('Passwords do not match!', 'error');
+                    return;
+                }
+                
+                const button = signupForm.querySelector('button[type="submit"]');
+                button.textContent = 'Creating Account...';
+                button.disabled = true;
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: name, email: email, password: password })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Sign up failed');
+                    }
+
+                    // SUCCESS!
+                    window.showToast('Account created! Please log in.', 'success');
+                    
+                    // Switch to login tab
+                    switchTabs('login');
+
+                } catch (error) {
+                    window.showToast(error.message, 'error');
+                } finally {
+                    button.textContent = 'Create Account';
+                    button.disabled = false;
+                }
+            });
+            
+            // Check for #signup hash
+            if (window.location.hash === '#signup') {
+                switchTabs('signup');
+            }
+        });
+    </script>
+    <script src="auth.js"></script>
+    <script src="notifications.js"></script>
+</body>
+</html>

@@ -1,0 +1,4560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Finance AI | Advanced Financial Dashboard</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.0.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.2.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.0.2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@2.0.0"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a0ca3;
+            --primary-light: #4895ef;
+            --secondary: #4cc9f0;
+            --accent: #f72585;
+            --success: #2ec4b6;
+            --warning: #ff9f1c;
+            --danger: #e71d36;
+            --dark: #0f172a;
+            --light: #f8f9fa;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-700: #475569;
+            --gray-900: #1e293b;
+            
+            --font-heading: 'Space Grotesk', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+            
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --sidebar-width: 280px;
+            --header-height: 80px;
+            --border-radius: 12px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-body);
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7ff 0%, #e6e9ff 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            transition: var(--transition);
+            border-right: none;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            font-family: var(--font-heading);
+        }
+        
+        .logo-icon {
+            font-size: 32px;
+            color: var(--primary);
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(76, 201, 240, 0.1) 100%);
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .logo-beta {
+            font-size: 12px;
+            background: var(--accent);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-left: 8px;
+        }
+        
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-grow: 1;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--gray-700);
+            font-weight: 500;
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+        
+       
+        
+        .nav-item:hover, .nav-item.active {
+            background: rgba(82, 112, 247, 0.1);
+            color: var(--primary);
+        }
+        
+        .nav-item i {
+            font-size: 22px;
+        }
+        
+        .user-profile {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 10px;
+            background: var(--gray-100);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .user-profile:hover {
+            background: var(--gray-200);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .user-info {
+            flex-grow: 1;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .user-email {
+            font-size: 12px;
+            color: var(--gray-700);
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: var(--transition);
+        }
+        
+        /* Header */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 20px 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+            font-family: var(--font-heading);
+            background: linear-gradient(135deg, var(--dark) 0%, var(--primary) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .header-btn {
+            background: var(--gray-100);
+            border: none;
+            padding: 10px 16px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .header-btn:hover {
+            background: var(--gray-200);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+        }
+        
+        .header-btn i {
+            font-size: 20px;
+        }
+        
+        .header-btn.primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+        }
+        
+        .header-btn.primary:hover {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(67, 97, 238, 0.4);
+        }
+        
+        .header-btn.logout-btn {
+            background: linear-gradient(135deg, var(--danger) 0%, #ff4757 100%);
+            color: white;
+            box-shadow: 0 4px 10px rgba(231, 29, 54, 0.3);
+        }
+        
+        .header-btn.logout-btn:hover {
+            background: linear-gradient(135deg, #c0392b 0%, var(--danger) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(231, 29, 54, 0.4);
+        }
+        
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+        }
+        
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            transition: var(--transition), box-shadow 0.2s ease, transform 0.2s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            font-family: var(--font-heading);
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .card-action-btn {
+            background: transparent;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .card-action-btn:hover {
+            background: var(--gray-100);
+            transform: scale(1.06);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        /* Financial Overview */
+        .financial-overview {
+            grid-column: span 8;
+        }
+        
+        .overview-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            padding: 20px;
+        }
+        
+        .metric-card {
+            background: var(--gray-100);
+            border-radius: 10px;
+            padding: 15px;
+            transition: var(--transition), transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.10);
+        }
+        
+        .metric-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--gray-700);
+            margin-bottom: 8px;
+        }
+        
+        .metric-value {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .metric-change {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+        }
+        
+        .metric-change.positive {
+            color: var(--success);
+        }
+        
+        .metric-change.negative {
+            color: var(--danger);
+        }
+        
+        .net-worth-chart {
+            height: 250px;
+            padding: 0 20px 20px;
+        }
+        
+        /* AI Assistant */
+        .ai-assistant {
+            grid-column: span 4;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .ai-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .ai-title {
+            font-size: 18px;
+            font-weight: 600;
+            font-family: var(--font-heading);
+        }
+        
+        .ai-status {
+            font-size: 12px;
+            color: var(--success);
+        }
+        
+        .ai-chat {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 300px;
+        }
+        
+        .ai-message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .ai-message.bot {
+            background: var(--gray-100);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+        
+        .ai-message.user {
+            background: var(--primary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .ai-input-container {
+            display: flex;
+            gap: 10px;
+            padding: 15px 20px;
+            border-top: 1px solid var(--gray-200);
+        }
+        
+        .ai-input {
+            flex: 1;
+            border: 1px solid var(--gray-300);
+            border-radius: 20px;
+            padding: 10px 16px;
+            font-size: 14px;
+            outline: none;
+            transition: var(--transition);
+        }
+        
+        .ai-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+        }
+        
+        .ai-send-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .ai-send-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.10);
+        }
+        
+        /* Market Overview */
+        .market-overview {
+            grid-column: span 8;
+        }
+        
+        .market-indices {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            padding: 20px;
+        }
+        
+        .index-card {
+            background: var(--gray-100);
+            border-radius: 10px;
+            padding: 15px;
+            transition: var(--transition), transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .index-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.10);
+        }
+        
+        .index-name {
+            font-size: 12px;
+            color: var(--gray-700);
+            margin-bottom: 8px;
+        }
+        
+        .index-value {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .index-change {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+        }
+        
+        .index-change.positive {
+            color: var(--success);
+        }
+        
+        .index-change.negative {
+            color: var(--danger);
+        }
+        
+        .market-chart {
+            height: 250px;
+            padding: 0 20px 20px;
+        }
+        
+        /* Portfolio Allocation */
+        .portfolio-allocation {
+            grid-column: span 4;
+        }
+        
+        .allocation-chart {
+            height: 300px;
+            padding: 20px;
+        }
+        
+        /* Investment Opportunities */
+        .investment-opportunities {
+            grid-column: span 12;
+        }
+        
+        .opportunities-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .opportunity-card {
+            border: 1px solid var(--gray-200);
+            border-radius: 10px;
+            padding: 15px;
+            transition: var(--transition), box-shadow 0.2s ease, transform 0.2s ease;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .opportunity-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .opportunity-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .opportunity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .opportunity-name {
+            font-size: 16px;
+            font-weight: 600;
+            font-family: var(--font-heading);
+        }
+        
+        .opportunity-meta {
+            font-size: 12px;
+            color: var(--gray-700);
+        }
+        
+        .opportunity-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .opportunity-stat {
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: var(--gray-700);
+            margin-bottom: 4px;
+        }
+        
+        .stat-value {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .stat-value.positive {
+            color: var(--success);
+        }
+        
+        .stat-value.negative {
+            color: var(--danger);
+        }
+        
+        .opportunity-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Financial News */
+        .financial-news {
+            grid-column: span 12;
+        }
+        
+        .news-list {
+            padding: 20px;
+        }
+        
+        .news-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--gray-200);
+            transition: var(--transition), background-color 0.2s ease;
+        }
+        
+        .news-item:hover {
+            background: var(--gray-100);
+        }
+        
+        .news-item:last-child {
+            border-bottom: none;
+        }
+        
+        .news-source {
+            font-size: 12px;
+            color: var(--gray-700);
+            margin-bottom: 5px;
+        }
+        
+        .news-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-family: var(--font-heading);
+        }
+        
+        .news-summary {
+            font-size: 14px;
+            color: var(--gray-700);
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        .news-time {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: var(--gray-700);
+        }
+        
+        /* Chips / badges */
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            background: var(--gray-100);
+            color: var(--gray-700);
+            transition: var(--transition), transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .chip:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+        }
+        
+        .chip.primary { background: rgba(67,97,238,0.1); color: var(--primary); }
+        .chip.success { background: rgba(46,196,182,0.1); color: var(--success); }
+        .chip.warning { background: rgba(255,159,28,0.12); color: var(--warning); }
+        .chip.danger { background: rgba(231,29,54,0.1); color: var(--danger); }
+        
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--gray-200);
+            color: var(--dark);
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .btn-ghost:hover { 
+            border-color: var(--primary); 
+            color: var(--primary); 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+        }
+        
+        /* Section header subtitling */
+        .section-subtitle { color: var(--gray-700); font-size: 13px; margin-top: 6px; }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            /* 1. Centering */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9); /* Start scaled down */
+
+            /* 2. New Look */
+            background: #111827;
+            color: #fff;
+            padding: 16px 24px; /* Make it bigger */
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            z-index: 1100;
+
+            /* 3. New Animation */
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1); /* "Pop in" */
+        }
+        
+        /* Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.35);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 10px 0;
+        }
+        
+        .form-row label {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--gray-700);
+        }
+        
+        .form-row select, .form-row input {
+            background: #fff;
+            border: 1px solid var(--gray-200);
+            border-radius: 10px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            height: 42px;
+            padding: 0 10px;
+        }
+        
+        .form-row select:focus, .form-row input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(67,97,238,0.14);
+        }
+        
+        /* Transactions */
+        .transactions-list {
+            padding: 20px;
+        }
+        
+        .transaction-row {
+            display: grid;
+            grid-template-columns: 100px 1fr 100px 100px 80px;
+            gap: 15px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--gray-200);
+            transition: var(--transition), background-color 0.2s ease;
+        }
+        
+        .transaction-row:hover {
+            background: var(--gray-100);
+        }
+        
+        .txn-actions {
+            display: inline-flex;
+            gap: 6px;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        
+        .icon-btn {
+            width: 28px;
+            height: 28px;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            background: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .icon-btn:hover { border-color: var(--primary); color: var(--primary); background: rgba(67,97,238,0.06); }
+        
+        .transaction-row:last-child {
+            border-bottom: none;
+        }
+        
+        /* Budget */
+        .budget-summary {
+            padding: 20px;
+        }
+        
+        .budget-row {
+            display: grid;
+            grid-template-columns: 1fr 100px;
+            gap: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--gray-200);
+            transition: var(--transition), background-color 0.2s ease;
+        }
+        
+        .budget-row:hover {
+            background: var(--gray-100);
+        }
+        
+        .budget-total {
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        /* Analytics */
+        .analytics-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; }
+        .stat-cards { grid-column: span 12; display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+        .stat-card { 
+            grid-column: span 3; 
+            background: var(--light); 
+            border: 1px solid var(--gray-200); 
+            border-radius: 12px; 
+            padding: 16px; 
+            transition: var(--transition), transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.10);
+        }
+        .stat-label { color: var(--gray-700); font-size: 12px; margin-bottom: 6px; }
+        .stat-value { font-weight: 700; font-size: 18px; }
+        .chart-card { 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); 
+            border-radius: 12px; 
+            padding: 16px; 
+        }
+        .chart-card h3 { font-size: 16px; margin-bottom: 10px; font-family: var(--font-heading); }
+        .chart-lg { height: 320px; }
+        .chart-sm { height: 220px; }
+        
+        .forecast-summary {
+            padding: 15px;
+            background: var(--gray-100);
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        .forecast-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .forecast-label {
+            font-size: 14px;
+            color: var(--gray-700);
+        }
+        
+        .forecast-value {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .trend-up {
+            color: var(--success);
+        }
+        
+        .trend-down {
+            color: var(--danger);
+        }
+        
+        /* Enhanced Recommendation Cards */
+        .enhanced-recommendation {
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            padding: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+        
+        .enhanced-recommendation:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .opportunity-badge {
+            margin-left: auto;
+        }
+        
+        .recommendation-reason {
+            color: var(--gray-700);
+            font-size: 14px;
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+        
+        .recommendation-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+            padding: 12px;
+            background: var(--gray-100);
+            border-radius: 8px;
+        }
+        
+        .meta-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .meta-label {
+            font-size: 12px;
+            color: var(--gray-700);
+        }
+        
+        .meta-value {
+            font-weight: 600;
+            font-size: 13px;
+        }
+        
+        .meta-value.low {
+            color: var(--success);
+        }
+        
+        .meta-value.medium {
+            color: var(--warning);
+        }
+        
+        .meta-value.high {
+            color: var(--danger);
+        }
+        
+        .recommendation-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 12px;
+            border-radius: 6px;
+        }
+        
+        /* User Clustering Styles */
+        .clustering-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .clustering-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .clustering-header h3 {
+            font-family: var(--font-heading);
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        
+        .clustering-header p {
+            color: var(--gray-700);
+            font-size: 14px;
+        }
+        
+        .cluster-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .cluster-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--gray-200);
+            transition: var(--transition);
+        }
+        
+        .cluster-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .cluster-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .cluster-id {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .cluster-count {
+            font-size: 12px;
+            color: var(--gray-700);
+            background: var(--gray-100);
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+        
+        .cluster-stats .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .cluster-stats .stat-label {
+            font-size: 13px;
+            color: var(--gray-700);
+        }
+        
+        .cluster-stats .stat-value {
+            font-weight: 600;
+            font-size: 13px;
+        }
+        
+        .clustering-insights {
+            background: var(--gray-100);
+            padding: 20px;
+            border-radius: 12px;
+        }
+        
+        .clustering-insights h4 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: var(--gray-900);
+        }
+        
+        .clustering-insights ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .clustering-insights li {
+            padding: 8px 0;
+            padding-left: 20px;
+            position: relative;
+            font-size: 14px;
+            color: var(--gray-700);
+        }
+        
+        .clustering-insights li::before {
+            content: '•';
+            color: var(--primary);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+        
+        /* Recommendations Controls */
+        .recommendations-controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: var(--gray-100);
+            border-radius: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-section, .sort-section, .refresh-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filter-section label, .sort-section label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+        
+        .filter-section select, .sort-section select {
+            padding: 8px 12px;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            color: var(--gray-900);
+        }
+        
+        .filter-section select:focus, .sort-section select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+        .topcats { 
+            grid-column: span 12; 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); 
+            border-radius: 12px; 
+            padding: 16px; 
+        }
+        .topcats-list { display: grid; grid-template-columns: 1fr 120px; row-gap: 8px; }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .overview-metrics, .market-indices {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .opportunities-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .stat-card {
+                grid-column: span 6;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .financial-overview, .market-overview {
+                grid-column: span 12;
+            }
+            
+            .ai-assistant, .portfolio-allocation {
+                grid-column: span 6;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .overview-metrics, .market-indices, .opportunities-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .ai-assistant, .portfolio-allocation {
+                grid-column: span 12;
+            }
+            
+            .stat-card {
+                grid-column: span 12;
+            }
+            
+            .header-actions {
+                flex-wrap: wrap;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Mobile menu button */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 101;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 992px) {
+            .mobile-menu-btn {
+                display: flex;
+            }
+        }
+        
+        /* Budget progress & rewards */
+        .budget-summary .rewards-summary {
+            background: var(--gray-100);
+            border: 1px solid var(--gray-200);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 14px;
+        }
+        .rewards-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .rewards-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .reward-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 999px; /* This makes it pill-shaped */
+            font-size: 12px;
+            font-weight: 500;
+
+            /* New Outline Style */
+            background: var(--light); /* Light background */
+            border: 1px solid var(--gray-300);
+            color: var(--gray-700);
+        }
+        .reward-badge.success {
+            background: rgba(46, 196, 182, 0.1); /* Light green background */
+            border-color: var(--success);
+            color: var(--success);
+        }
+        .reward-badge.warning {
+            background: rgba(255, 159, 28, 0.1); /* Light yellow background */
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+        .reward-badge.danger {
+            background: rgba(231, 29, 54, 0.1); /* Light red background */
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+        
+        .weekly-focus-card {
+            grid-column: span 12;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            border: none;
+            box-shadow: 0 10px 30px rgba(58, 12, 163, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .weekly-focus-icon {
+            font-size: 40px;
+            opacity: 0.8;
+        }
+        .weekly-focus-content h3 {
+            font-family: var(--font-heading);
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        .weekly-focus-content p {
+            font-size: 16px;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+        
+        .budget-progress {
+            grid-column: 1 / -1;
+            background: var(--gray-100);
+            border-radius: 999px;
+            height: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .budget-progress-bar {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, #2ec4b6, #4cc9f0);
+            transition: width 0.6s ease;
+        }
+        .budget-progress-bar.warn { background: linear-gradient(90deg, #ff9f1c, #f7b267); }
+        .budget-progress-bar.over { background: linear-gradient(90deg, #e71d36, #f72585); }
+        .budget-progress-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--gray-700);
+            margin-top: 6px;
+        }
+        
+        /* Interactive Risk Quiz */
+        .quiz-progress {
+            width: 100%;
+            height: 8px;
+            background: var(--gray-100);
+            border-radius: 999px;
+            overflow: hidden;
+            margin: 10px 0 16px;
+        }
+        .quiz-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.4s ease;
+        }
+        .quiz-steps {
+            display: grid;
+            gap: 14px;
+        }
+        .quiz-step { display: none; }
+        .quiz-step.active { display: block; }
+        .quiz-q { font-weight: 600; margin-bottom: 8px; }
+        .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .quiz-option {
+            border: 1px solid var(--gray-200);
+            border-radius: 10px;
+            padding: 12px;
+            cursor: pointer;
+            background: #fff;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .quiz-option:hover { border-color: var(--primary); box-shadow: 0 6px 14px rgba(0,0,0,0.06); }
+        .quiz-option.selected { border-color: var(--primary); box-shadow: 0 6px 16px rgba(67,97,238,0.14); background: rgba(67,97,238,0.05); }
+        .quiz-emoji { font-size: 20px; }
+        .quiz-range {
+            display: grid;
+            gap: 6px;
+        }
+        .quiz-range input[type="range"] { width: 100%; }
+        .quiz-nav { display: flex; justify-content: space-between; margin-top: 10px; }
+        .quiz-hint { font-size: 12px; color: var(--gray-700); }
+        
+        @media (max-width: 480px) {
+            .quiz-options { grid-template-columns: 1fr; }
+            
+            .main-content {
+                padding: 0.5rem;
+            }
+            
+            .card {
+                padding: 0.75rem;
+            }
+            
+            .header-btn {
+                padding: 0.375rem 0.75rem;
+                font-size: 0.8rem;
+            }
+            
+            .dashboard-grid {
+                gap: 0.75rem;
+            }
+            
+            .chart-container {
+                height: 200px;
+            }
+            
+            .modal {
+                padding: 0.5rem;
+            }
+            
+            .form-group input,
+            .form-group select {
+                padding: 0.75rem;
+                font-size: 0.9rem;
+            }
+            
+            .header-actions {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            
+            .header-btn span {
+                display: none;
+            }
+            
+            .header-btn::after {
+                content: attr(data-mobile-text);
+                font-size: 0.75rem;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .header-title {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .mobile-menu-btn {
+                display: flex;
+            }
+        }
+        
+        /* Floating AI Assistant (visible on non-dashboard sections) */
+        .floating-ai-toggle {
+            position: fixed;
+            right: 22px;
+            bottom: 22px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff;
+            box-shadow: 0 12px 24px rgba(67,97,238,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1200;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .floating-ai-toggle:hover { transform: translateY(-2px) rotate(6deg); box-shadow: 0 16px 32px rgba(67,97,238,0.45); }
+        .floating-ai-pulse {
+            position: absolute;
+            inset: -6px;
+            border-radius: 999px;
+            background: radial-gradient(transparent, rgba(67,97,238,0.18));
+            animation: pulse 2.2s infinite;
+            z-index: -1;
+        }
+        @keyframes pulse { 0%{opacity:0.7; transform:scale(0.9);} 50%{opacity:0.25; transform:scale(1.1);} 100%{opacity:0; transform:scale(1.2);} }
+        
+        .floating-ai-panel {
+            position: fixed;
+            right: 22px;
+            bottom: 90px;
+            width: 320px;
+            max-height: 60vh;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            box-shadow: 0 16px 36px rgba(0,0,0,0.14);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1200;
+        }
+        .floating-ai-header { display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid var(--gray-200); }
+        .floating-ai-title { display:flex; align-items:center; gap:8px; font-weight:700; }
+        .floating-ai-body { padding: 12px; display:flex; flex-direction:column; gap:10px; overflow:auto; max-height: 42vh; }
+        .floating-ai-input { display:flex; gap:8px; padding:10px; border-top:1px solid var(--gray-200); }
+        .floating-ai-input input { flex:1; border:1px solid var(--gray-300); border-radius: 10px; padding:8px 10px; }
+        .floating-ai-message { font-size: 13px; line-height: 1.5; padding:8px 10px; border-radius: 10px; max-width: 80%; }
+        .floating-ai-message.bot { background: var(--gray-100); align-self:flex-start; }
+        .floating-ai-message.user { background: var(--primary); color:#fff; align-self:flex-end; }
+        .floating-ai-suggest { display:flex; flex-wrap:wrap; gap:6px; }
+        .floating-ai-chip { font-size:12px; padding:6px 10px; border:1px solid var(--gray-200); border-radius:999px; cursor:pointer; transition: var(--transition); }
+        .floating-ai-chip:hover { border-color: var(--primary); color: var(--primary); }
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-btn" id="mobile-menu-btn">
+        <span class="material-icons">menu</span>
+    </button>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <div class="logo-icon">
+                    <span class="material-icons">auto_awesome</span>
+                </div>
+                <div class="logo-text">Nexus Finance </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <a class="nav-item active" data-section="dashboard">
+                    <span class="material-icons">dashboard</span>
+                    Dashboard
+                </a>
+                <a class="nav-item" data-section="investments">
+                    <span class="material-icons">trending_up</span>
+                    Investments
+                </a>
+                <a class="nav-item" data-section="transactions">
+                    <span class="material-icons">receipt</span>
+                    Transactions
+                </a>
+                <a class="nav-item" data-section="budget">
+                    <span class="material-icons">savings</span>
+                    Budget
+                </a>
+                <a class="nav-item" data-section="analytics">
+                    <span class="material-icons">show_chart</span>
+                    Analytics
+                </a>
+                <a class="nav-item" data-section="settings">
+                    <span class="material-icons">settings</span>
+                    Settings
+                </a>
+            </nav>
+            
+            <div class="user-profile" id="user-profile">
+                <div class="user-avatar">KB</div>
+                <div class="user-info">
+                    <div class="user-name">Khushi Bhadangkar</div>
+                    <div class="user-email">khushi@gmail.com</div>
+                </div>
+                <button class="card-action-btn">
+                    <span class="material-icons">more_vert</span>
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="dashboard-header">
+                <h1 class="header-title">Financial Dashboard</h1>
+                <div class="header-actions">
+                    <button class="header-btn" id="refresh-btn" data-mobile-text="Refresh">
+                        <span class="material-icons">refresh</span>
+                        Refresh
+                    </button>
+                    <button class="header-btn" id="export-btn" data-mobile-text="Export">
+                        <span class="material-icons">download</span>
+                        Export
+                    </button>
+                    <button class="header-btn primary" id="new-transaction-btn" data-mobile-text="Add">
+                        <span class="material-icons">add</span>
+                        New Transaction
+                    </button>
+                    <button class="header-btn logout-btn" id="logout-btn" data-mobile-text="Logout">
+                        <span class="material-icons">logout</span>
+                        Logout
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Dashboard Section -->
+            <section class="content-section" id="section-dashboard">
+                <div class="dashboard-grid">
+                    <!-- Weekly Focus Card -->
+                    <div id="weekly-focus-card" class="weekly-focus-card" style="display: none;">
+                        <span class="material-icons weekly-focus-icon">track_changes</span>
+                        <div class="weekly-focus-content">
+                            <h3 id="weekly-focus-title">This Week's Focus</h3>
+                            <p id="weekly-focus-message">Loading your personalized goal...</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Financial Overview -->
+                    <section class="card financial-overview">
+                        <div class="card-header">
+                            <h2 class="card-title">Financial Overview</h2>
+                            <div class="card-actions">
+                                <select id="networth-range">
+                                    <option value="3">Last 3M</option>
+                                    <option value="6">Last 6M</option>
+                                    <option value="12" selected>Last 12M</option>
+                                    <option value="all">All</option>
+                                </select>
+                                <button class="card-action-btn">
+                                    <span class="material-icons">calendar_today</span>
+                                </button>
+                                <button class="card-action-btn">
+                                    <span class="material-icons">more_vert</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="overview-metrics">
+                            <div class="metric-card">
+                                <div class="metric-label">
+                                    <span class="material-icons" style="color: var(--primary);">account_balance</span>
+                                    Net Worth
+                                </div>
+                                <div class="metric-value">₹248,759</div>
+                                <div class="metric-change positive">
+                                    <span class="material-icons">trending_up</span>
+                                    4.2% this month
+                                </div>
+                            </div>
+                            
+                            <div class="metric-card">
+                                <div class="metric-label">
+                                    <span class="material-icons" style="color: var(--success);">savings</span>
+                                    Total Assets
+                                </div>
+                                <div class="metric-value">₹312,450</div>
+                                <div class="metric-change positive">
+                                    <span class="material-icons">trending_up</span>
+                                    2.1% this month
+                                </div>
+                            </div>
+                            
+                            <div class="metric-card">
+                                <div class="metric-label">
+                                    <span class="material-icons" style="color: var(--danger);">credit_card</span>
+                                    Total Liabilities
+                                </div>
+                                <div class="metric-value">₹63,691</div>
+                                <div class="metric-change negative">
+                                    <span class="material-icons">trending_down</span>
+                                    1.3% this month
+                                </div>
+                            </div>
+                            
+                            <div class="metric-card">
+                                <div class="metric-label">
+                                    <span class="material-icons" style="color: var(--warning);">show_chart</span>
+                                    Investment Return
+                                </div>
+                                <div class="metric-value">8.4%</div>
+                                <div class="metric-change positive">
+                                    <span class="material-icons">trending_up</span>
+                                    1.7% this month
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="net-worth-chart">
+                            <canvas id="netWorthChart"></canvas>
+                        </div>
+                    </section>
+                    
+                    <!-- AI Assistant -->
+                    <section class="card ai-assistant">
+                        <div class="ai-header">
+                            <div class="ai-avatar">
+                                <span class="material-icons">smart_toy</span>
+                            </div>
+                            <div>
+                                <h2 class="ai-title">Nexus AI Assistant</h2>
+                                <div class="ai-status">Online & Analyzing</div>
+                            </div>
+                        </div>
+                        
+                        <div class="ai-chat" id="ai-chat">
+                            <div class="ai-message bot">
+                                Hello! I'm your Nexus AI assistant. I can help you analyze your finances, suggest investments, and answer any questions you have about your financial health.
+                            </div>
+                            <div class="ai-message bot">
+                                I've noticed your tech stock allocation is higher than recommended. Would you like me to suggest a rebalancing strategy?
+                            </div>
+                        </div>
+                        
+                        <div class="ai-input-container">
+                            <input type="text" class="ai-input" id="ai-input" placeholder="Ask me anything about your finances...">
+                            <button class="ai-send-btn" id="ai-send-btn">
+                                <span class="material-icons">send</span>
+                            </button>
+                        </div>
+                    </section>
+                    
+                    <!-- Market Overview -->
+                    <section class="card market-overview">
+                        <div class="card-header">
+                            <h2 class="card-title">Market Overview</h2>
+                            <div class="card-actions">
+                                <button class="card-action-btn">
+                                    <span class="material-icons">public</span>
+                                </button>
+                                <button class="card-action-btn">
+                                    <span class="material-icons">more_vert</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="market-indices">
+                            <div class="index-card">
+                                <div class="index-name">S&P 500</div>
+                                <div class="index-value">4,567.23</div>
+                                <div class="index-change positive">
+                                    <span class="material-icons">trending_up</span>
+                                    +23.45 (0.52%)
+                                </div>
+                            </div>
+                            
+                            <div class="index-card">
+                                <div class="index-name">NASDAQ</div>
+                                <div class="index-value">14,256.78</div>
+                                <div class="index-change positive">
+                                    <span class="material-icons">trending_up</span>
+                                    +78.34 (0.55%)
+                                </div>
+                            </div>
+                            
+                            <div class="index-card">
+                                <div class="index-name">DOW</div>
+                                <div class="index-value">34,567.89</div>
+                                <div class="index-change negative">
+                                    <span class="material-icons">trending_down</span>
+                                    -45.67 (0.13%)
+                                </div>
+                            </div>
+                            
+                            <div class="index-card">
+                                <div class="index-name">Bitcoin</div>
+                                <div class="index-value">₹42,345</div>
+                                <div class="index-change positive">
+                                    <span class="material-icons">trending_up</span>
+                                    +1,234 (3.0%)
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="market-chart">
+                            <canvas id="marketChart"></canvas>
+                        </div>
+                    </section>
+                    
+                    <!-- Portfolio Allocation -->
+                    <section class="card portfolio-allocation">
+                        <div class="card-header">
+                            <h2 class="card-title">Portfolio Allocation</h2>
+                            <div class="card-actions">
+                                <button class="card-action-btn">
+                                    <span class="material-icons">pie_chart</span>
+                                </button>
+                                <button class="card-action-btn">
+                                    <span class="material-icons">more_vert</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="allocation-chart">
+                            <canvas id="allocationChart"></canvas>
+                        </div>
+                    </section>
+                    
+                    <!-- Investment Opportunities -->
+                    <section class="card investment-opportunities">
+                        <div class="card-header">
+                            <h2 class="card-title">AI-Curated Investment Opportunities</h2>
+                            <div class="card-actions">
+                                <button class="card-action-btn">
+                                    <span class="material-icons">bolt</span>
+                                Smart Filters
+                                </button>
+                                <button class="card-action-btn">
+                                    <span class="material-icons">more_vert</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="opportunities-grid">
+                            <div class="opportunity-card">
+                                <div class="opportunity-header">
+                                    <div class="opportunity-icon">
+                                        <span class="material-icons">precision_manufacturing</span>
+                                    </div>
+                                    <div>
+                                        <div class="opportunity-name">AI Tech ETF</div>
+                                        <div class="opportunity-meta">Global X Robotics & AI</div>
+                                    </div>
+                                </div>
+                                <div class="opportunity-stats">
+                                    <div class="opportunity-stat">
+                                        <div class="stat-label">1Y Return</div>
+                                        <div class="stat-value positive">+34.2%</div>
+                                    </div>
+                                    <div class="opportunity-stat">
+                                        <div class="stat-label">Risk</div>
+                                        <div class="stat-value">Medium</div>
+                                    </div>
+                                    <div class="opportunity-stat">
+                                        <div class="stat-label">AI Score</div>
+                                        <div class="stat-value positive">88/100</div>
+                                    </div>
+                                </div>
+                                <div class="opportunity-footer">
+                                    <span class="chip primary">Growth</span>
+                                    <button class="btn-ghost">
+                                        <span class="material-icons">add_to_queue</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="opportunity-card">
+                                <div class="opportunity-header">
+                                    <div class="opportunity-icon">
+                                        <span class="material-icons">local_hospital</span>
+                                    </div>
+                                    <div>
+                                        <div class="opportunity-name">Biotech Fund</div>
+                                        <div class="opportunity-meta">ARK Genomic Revolution</div>
+                                    </div>
+                                </div>
+                                <div class="opportunity-stats">
+                                    <div class="opportunity-stat">
+                                        <div class="stat-label">1Y Return</div>
+                                        <div class="stat-value positive">+28.7%</div>
+                                    </div>
+                                    <div class="opportunity-stat">
+                                        <div class="stat-label">Risk</div>
+                                        <div class="stat-value">High</div>
+                                    </div>
+                                    <div class="opportunity-stat">
+                                        <div class="stat-label">AI Score</div>
+                                        <div class="stat-value positive">79/100</div>
+                                    </div>
+                                </div>
+                                <div class="opportunity-footer">
+                                    <span class="chip danger">High Risk</span>
+                                    <button class="btn-ghost">
+                                        <span class="material-icons">add_to_queue</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="opportunity-card">
+                                <div class="opportunity-header">
+                                    <div class="opportunity-icon">
+                                        <span class="material-icons">energy_savings_leaf</span>
+                                    </div>
+                                    <div>
+                                        <div class="opportunity-name">Green Energy</div>
+                                        <div class="opportunity-meta">iShares Global Clean Energy</div>
+                                    </div>
+                                </div>
+                                <div class="opportunity-stats">
+                                    <div class="opportunity-stat">
+                                        <div class="stat-label">1Y Return</div>
+                                        <div class="stat-value negative">-5.3%</div>
+                                    </div>
+                                    <div class="opportunity-stat">
+                                        <div class="stat-label">Risk</div>
+                                        <div class="stat-value">Medium</div>
+                                    </div>
+                                    <div class="opportunity-stat">
+                                        <div class="stat-label">AI Score</div>
+                                        <div class="stat-value positive">92/100</div>
+                                    </div>
+                                </div>
+                                <div class="opportunity-footer">
+                                    <span class="chip success">ESG</span>
+                                    <button class="btn-ghost">
+                                        <span class="material-icons">add_to_queue</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Financial News -->
+                    <section class="card financial-news">
+                        <div class="card-header">
+                            <h2 class="card-title">Financial News & Insights</h2>
+                            <div class="card-actions">
+                                <button class="card-action-btn">
+                                    <span class="material-icons">newspaper</span>
+                                </button>
+                                <button class="card-action-btn">
+                                    <span class="material-icons">more_vert</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="news-list">
+                            <div class="news-item">
+                                <div style="flex-grow: 1;">
+                                    <div class="news-source">Bloomberg • Market Analysis</div>
+                                    <h3 class="news-title">Fed Signals Potential Rate Cuts in 2024 Amid Cooling Inflation</h3>
+                                    <p class="news-summary">The Federal Reserve indicated it may begin cutting interest rates next year as inflation shows signs of easing, sending markets higher.</p>
+                                    <div class="news-time">
+                                        <span class="material-icons" style="font-size: 14px;">schedule</span>
+                                        2 hours ago • AI Analysis: Positive for Growth Stocks
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="news-item">
+                                <div style="flex-grow: 1;">
+                                    <div class="news-source">Financial Times • Technology</div>
+                                    <h3 class="news-title">AI Chip Demand Surges as Nvidia Reports Record Earnings</h3>
+                                    <p class="news-summary">Nvidia shares jumped 8% in after-hours trading after reporting earnings that crushed expectations, driven by AI chip demand.</p>
+                                    <div class="news-time">
+                                        <span class="material-icons" style="font-size: 14px;">schedule</span>
+                                        5 hours ago • AI Analysis: Sector Outperform
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="news-item">
+                                <div style="flex-grow: 1;">
+                                    <div class="news-source">Wall Street Journal • Personal Finance</div>
+                                    <h3 class="news-title">Best High-Yield Savings Accounts for December 2023</h3>
+                                    <p class="news-summary">With rates at 15-year highs, we compare the top savings accounts offering 5% APY or more to maximize your cash returns.</p>
+                                    <div class="news-time">
+                                        <span class="material-icons" style="font-size: 14px;">schedule</span>
+                                        1 day ago • AI Analysis: Relevant to Your Cash Holdings
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </section>
+
+            <!-- Transactions Section -->
+            <section class="content-section" id="section-transactions" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Transactions</h2>
+                        <div class="card-actions">
+                            <button class="header-btn primary" id="add-expense-btn">
+                                <span class="material-icons">add</span>
+                                Add Expense
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="transactions-list" id="transactions-list">
+                            <div class="transaction-row">
+                                <div class="t-date">12/15/2023</div>
+                                <div class="t-desc">Grocery Shopping</div>
+                                <div class="t-cat">Groceries</div>
+                                <div class="t-amt">₹125.34</div>
+                                <div class="txn-actions">
+                                    <button class="icon-btn" data-action="edit">
+                                        <span class="material-icons">edit</span>
+                                    </button>
+                                    <button class="icon-btn" data-action="delete">
+                                        <span class="material-icons">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="transaction-row">
+                                <div class="t-date">12/14/2023</div>
+                                <div class="t-desc">Electricity Bill</div>
+                                <div class="t-cat">Utilities</div>
+                                <div class="t-amt">₹89.50</div>
+                                <div class="txn-actions">
+                                    <button class="icon-btn" data-action="edit">
+                                        <span class="material-icons">edit</span>
+                                    </button>
+                                    <button class="icon-btn" data-action="delete">
+                                        <span class="material-icons">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="transaction-row">
+                                <div class="t-date">12/13/2023</div>
+                                <div class="t-desc">Netflix Subscription</div>
+                                <div class="t-cat">Entertainment</div>
+                                <div class="t-amt">₹15.99</div>
+                                <div class="txn-actions">
+                                    <button class="icon-btn" data-action="edit">
+                                        <span class="material-icons">edit</span>
+                                    </button>
+                                    <button class="icon-btn" data-action="delete">
+                                        <span class="material-icons">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="transaction-row">
+                                <div class="t-date">12/12/2023</div>
+                                <div class="t-desc">Gas Station</div>
+                                <div class="t-cat">Transportation</div>
+                                <div class="t-amt">₹45.00</div>
+                                <div class="txn-actions">
+                                    <button class="icon-btn" data-action="edit">
+                                        <span class="material-icons">edit</span>
+                                    </button>
+                                    <button class="icon-btn" data-action="delete">
+                                        <span class="material-icons">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="transaction-row">
+                                <div class="t-date">12/10/2023</div>
+                                <div class="t-desc">Restaurant Dinner</div>
+                                <div class="t-cat">Dining</div>
+                                <div class="t-amt">₹78.40</div>
+                                <div class="txn-actions">
+                                    <button class="icon-btn" data-action="edit">
+                                        <span class="material-icons">edit</span>
+                                    </button>
+                                    <button class="icon-btn" data-action="delete">
+                                        <span class="material-icons">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Budget Section -->
+            <section class="content-section" id="section-budget" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Budget</h2>
+                        <div class="card-actions">
+                            <button class="header-btn" id="create-budget-btn">
+                                <span class="material-icons">add</span>
+                                Create Budget
+                            </button>
+                            <button class="header-btn">
+                                <span class="material-icons">settings</span>
+                                Configure
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="budget-summary" id="budget-summary">
+                            <div class="budget-total">
+                                <strong>Monthly Budget:</strong> ₹3,500.00
+                            </div>
+                            <div class="budget-row">
+                                <div class="b-cat">Housing</div>
+                                <div class="b-amt" contenteditable="true">₹1,200.00</div>
+                            </div>
+                            <div class="budget-progress" data-cat="Housing"><div class="budget-progress-bar"></div></div>
+                            <div class="budget-row">
+                                <div class="b-cat">Food</div>
+                                <div class="b-amt" contenteditable="true">₹600.00</div>
+                            </div>
+                            <div class="budget-progress" data-cat="Food"><div class="budget-progress-bar"></div></div>
+                            <div class="budget-row">
+                                <div class="b-cat">Transportation</div>
+                                <div class="b-amt" contenteditable="true">₹350.00</div>
+                            </div>
+                            <div class="budget-progress" data-cat="Transportation"><div class="budget-progress-bar"></div></div>
+                            <div class="budget-row">
+                                <div class="b-cat">Utilities</div>
+                                <div class="b-amt" contenteditable="true">₹200.00</div>
+                            </div>
+                            <div class="budget-progress" data-cat="Utilities"><div class="budget-progress-bar"></div></div>
+                            <div class="budget-row">
+                                <div class="b-cat">Entertainment</div>
+                                <div class="b-amt" contenteditable="true">₹300.00</div>
+                            </div>
+                            <div class="budget-progress" data-cat="Entertainment"><div class="budget-progress-bar"></div></div>
+                            <div class="budget-row">
+                                <div class="b-cat">Savings</div>
+                                <div class="b-amt" contenteditable="true">₹850.00</div>
+                            </div>
+                            <div class="budget-progress" data-cat="Savings"><div class="budget-progress-bar"></div></div>
+                            <div class="rewards-summary">
+                                <h3 class="rewards-title">Rewards Summary</h3>
+                                <div class="rewards-list" id="rewards-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Investments Section -->
+            <section class="content-section" id="section-investments" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Investments</h2>
+                        <div class="card-actions">
+                            <button class="header-btn" id="save-invest-prefs">
+                                <span class="material-icons">tune</span>
+                                Save Profile & Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="section-subtitle">Configure your goals and risk to get tailored ideas. Adjust anytime.</div>
+                        <div class="form-row">
+                            <label>Primary Goal
+                                <select id="invest-goal">
+                                    <option value="Growth">Growth</option>
+                                    <option value="Income">Income</option>
+                                    <option value="Balanced">Balanced</option>
+                                    <option value="ESG">ESG / Sustainable</option>
+                                </select>
+                            </label>
+                            <label>Risk Profile
+                                <select id="invest-risk">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="form-row">
+                            <label>Time Horizon
+                                <select id="invest-horizon">
+                                    <option value="Short">0-3 years</option>
+                                    <option value="Medium" selected>3-7 years</option>
+                                    <option value="Long">7+ years</option>
+                                </select>
+                            </label>
+                            <label>Sector Preference (optional)
+                                <select id="invest-sector">
+                                    <option value="Any" selected>Any</option>
+                                    <option value="Tech">Tech</option>
+                                    <option value="Healthcare">Healthcare</option>
+                                    <option value="RealEstate">Real Estate</option>
+                                    <option value="Energy">Energy / Clean</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="form-row">
+                            <label>Risk Quiz
+                                <button class="header-btn" id="risk-quiz-btn">Take Quiz</button>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="card investment-opportunities" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h2 class="card-title">AI-Curated Suggestions</h2>
+                        <div class="card-actions">
+                            <button class="card-action-btn" id="refresh-invest-suggestions">
+                                <span class="material-icons">bolt</span>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="recommendations-controls">
+                        <div class="filter-section">
+                            <label for="risk-filter">Filter by Risk:</label>
+                            <select id="risk-filter" onchange="filterRecommendations()">
+                                <option value="all">All Risk Levels</option>
+                                <option value="low">Low Risk</option>
+                                <option value="medium">Medium Risk</option>
+                                <option value="high">High Risk</option>
+                            </select>
+                        </div>
+                        <div class="sort-section">
+                            <label for="sort-by">Sort by:</label>
+                            <select id="sort-by" onchange="sortRecommendations()">
+                                <option value="default">Default</option>
+                                <option value="risk">Risk Level</option>
+                                <option value="investment">Min. Investment</option>
+                                <option value="name">Name</option>
+                            </select>
+                        </div>
+                        <div class="refresh-section">
+                            <button class="btn btn-outline btn-sm" onclick="refreshRecommendations()">
+                                <span class="material-icons">refresh</span>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="opportunities-grid" id="investments-grid">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section class="content-section" id="section-analytics" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Analytics</h2>
+                        <div class="card-actions">
+                            <button class="card-action-btn" id="analytics-refresh">
+                                <span class="material-icons">refresh</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="analytics-grid">
+                            <div class="stat-cards">
+                                <div class="stat-card">
+                                    <div class="stat-label">Total Spent</div>
+                                    <div class="stat-value" id="a-total">₹2,458.23</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">My Financial Score</div>
+                                    <div class="stat-value" id="a-financial-score">--/100</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">Top Category</div>
+                                    <div class="stat-value" id="a-top">Housing</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">Num. Transactions</div>
+                                    <div class="stat-value" id="a-count">47</div>
+                                </div>
+                            </div>
+                            <div class="chart-card" style="grid-column: span 6;">
+                                <h3>Monthly Spend</h3>
+                                <div class="chart-lg">
+                                    <canvas id="a-monthly"></canvas>
+                                </div>
+                            </div>
+                            <div class="chart-card" style="grid-column: span 6;">
+                                <h3>Expense Forecasting</h3>
+                                <div class="chart-lg">
+                                    <canvas id="forecast-chart"></canvas>
+                                </div>
+                                <div id="forecast-summary" class="forecast-summary"></div>
+                            </div>
+                            <div class="chart-card" style="grid-column: span 4;">
+                                <h3>By Category</h3>
+                                <div class="chart-sm">
+                                    <canvas id="a-category"></canvas>
+                                </div>
+                            </div>
+                            <div class="chart-card" style="grid-column: span 4;">
+                                <h3>Budget vs Spending</h3>
+                                <div class="chart-sm">
+                                    <canvas id="budget-vs-spending"></canvas>
+                                </div>
+                            </div>
+                            <div class="topcats">
+                                <h3>Top Categories</h3>
+                                <div class="topcats-list" id="a-topcats">
+                                    <div>1. Housing</div><div style="text-align:right; font-weight:600;">₹1,200.00</div>
+                                    <div>2. Food</div><div style="text-align:right; font-weight:600;">₹600.00</div>
+                                    <div>3. Savings</div><div style="text-align:right; font-weight:600;">₹850.00</div>
+                                    <div>4. Transportation</div><div style="text-align:right; font-weight:600;">₹350.00</div>
+                                    <div>5. Entertainment</div><div style="text-align:right; font-weight:600;">₹300.00</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section class="content-section" id="section-settings" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Settings</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <label>Account Type
+                                <select>
+                                    <option>Personal</option>
+                                    <option>Business</option>
+                                </select>
+                            </label>
+                            <label>Currency
+                                <select>
+                                    <option selected>USD ($)</option>
+                                    <option>EUR (€)</option>
+                                    <option>GBP (£)</option>
+                                    <option>JPY (¥)</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="form-row">
+                            <label>Notification Frequency
+                                <select>
+                                    <option>Real-time</option>
+                                    <option selected>Daily Digest</option>
+                                    <option>Weekly Summary</option>
+                                </select>
+                            </label>
+                            <label>Risk Tolerance
+                                <select>
+                                    <option>Conservative</option>
+                                    <option selected>Moderate</option>
+                                    <option>Aggressive</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="form-row">
+                            <label>Two-Factor Authentication
+                                <select>
+                                    <option>Enabled</option>
+                                    <option selected>Disabled</option>
+                                </select>
+                            </label>
+                            <label>Data Sharing for AI
+                                <select>
+                                    <option selected>Enabled</option>
+                                    <option>Disabled</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="modal-actions">
+                            <button class="header-btn">Cancel</button>
+                            <button class="header-btn primary">Save Settings</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div class="toast" id="app-toast"></div>
+
+    <!-- Floating AI Assistant -->
+    <button class="floating-ai-toggle" id="floating-ai-toggle" title="Ask Nexus AI">
+        <span class="floating-ai-pulse"></span>
+        <span class="material-icons">smart_toy</span>
+    </button>
+    <div class="floating-ai-panel" id="floating-ai-panel">
+        <div class="floating-ai-header">
+            <div class="floating-ai-title"><span class="material-icons">auto_awesome</span> Nexus Anywhere</div>
+            <button class="icon-btn" id="floating-ai-close"><span class="material-icons">close</span></button>
+        </div>
+        <div class="floating-ai-body" id="floating-ai-body"></div>
+        <div class="floating-ai-input">
+            <input type="text" id="floating-ai-input" placeholder="Ask anything..." />
+            <button class="ai-send-btn" id="floating-ai-send"><span class="material-icons">send</span></button>
+        </div>
+        <div class="floating-ai-suggest" id="floating-ai-suggest" style="padding:10px;"></div>
+    </div>
+
+    <!-- Expense Modal -->
+    <div class="modal" id="expense-modal">
+        <div class="modal-content">
+            <h3>Add Expense</h3>
+            <form id="expense-form">
+                <div class="form-row">
+                    <label>Date
+                        <input type="date" id="expense-date" required />
+                    </label>
+                    <label>Amount
+                        <input type="number" id="expense-amount" step="0.01" min="0" placeholder="0.00" required />
+                    </label>
+                </div>
+                <div class="form-row">
+                    <label>Description
+                        <input type="text" id="expense-desc" placeholder="e.g., Groceries" required />
+                    </label>
+                    <label>Category
+                        <select id="expense-category" required>
+                            <option value="Housing">Housing</option>
+                            <option value="Food">Food</option>
+                            <option value="Transportation">Transportation</option>
+                            <option value="Utilities">Utilities</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Savings">Savings</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Education">Education</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="form-row">
+                    <label>Payment Method
+                        <input type="text" id="expense-method" placeholder="e.g., Visa **** 1234" />
+                    </label>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="header-btn" id="expense-cancel">Cancel</button>
+                    <button type="submit" class="header-btn primary">Save Expense</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Budget Creation Modal -->
+    <div class="modal" id="budget-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create Budget</h3>
+                <span class="close" id="budget-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="budget-form">
+                    <div class="form-row">
+                        <label>Monthly Income
+                            <input type="number" id="budget-income" placeholder="50000" required />
+                        </label>
+                        <label>Financial Goal
+                            <select id="budget-goal" required>
+                                <option value="Financial Stability">Financial Stability</option>
+                                <option value="Emergency Fund">Emergency Fund</option>
+                                <option value="Investment Growth">Investment Growth</option>
+                                <option value="Debt Payoff">Debt Payoff</option>
+                                <option value="Retirement Planning">Retirement Planning</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="form-row">
+                        <label>Risk Profile
+                            <select id="budget-risk" required>
+                                <option value="low">Conservative (Low Risk)</option>
+                                <option value="medium" selected>Balanced (Medium Risk)</option>
+                                <option value="high">Aggressive (High Risk)</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" id="budget-cancel" class="btn btn-secondary">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create Budget</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Quiz Modal -->
+    <div class="modal" id="risk-quiz-modal">
+        <div class="modal-content">
+            <h3>Risk Assessment Quiz</h3>
+            <div class="quiz-progress"><div class="quiz-progress-bar" id="quiz-progress-bar"></div></div>
+            <form id="risk-quiz-form">
+                <div class="quiz-steps" id="quiz-steps">
+                    <div class="quiz-step active" data-weight="1">
+                        <div class="quiz-q">How do you feel about market ups and downs?</div>
+                        <div class="quiz-options">
+                            <div class="quiz-option" data-score="0"><span class="quiz-emoji">😬</span> I dislike volatility</div>
+                            <div class="quiz-option" data-score="1"><span class="quiz-emoji">🙂</span> I can tolerate some</div>
+                            <div class="quiz-option" data-score="2"><span class="quiz-emoji">😎</span> Comfortable with swings</div>
+                            <div class="quiz-option" data-score="3"><span class="quiz-emoji">🚀</span> Love the action</div>
+                        </div>
+                    </div>
+                    <div class="quiz-step" data-weight="1">
+                        <div class="quiz-q">Your investment horizon</div>
+                        <div class="quiz-options">
+                            <div class="quiz-option" data-score="0">Less than 2 years</div>
+                            <div class="quiz-option" data-score="1">2-5 years</div>
+                            <div class="quiz-option" data-score="2">5-10 years</div>
+                            <div class="quiz-option" data-score="3">More than 10 years</div>
+                        </div>
+                    </div>
+                    <div class="quiz-step" data-weight="1">
+                        <div class="quiz-q">If your portfolio fell 20% in a month, you would…</div>
+                        <div class="quiz-options">
+                            <div class="quiz-option" data-score="0">Sell everything</div>
+                            <div class="quiz-option" data-score="1">Sell some</div>
+                            <div class="quiz-option" data-score="2">Do nothing</div>
+                            <div class="quiz-option" data-score="3">Buy more</div>
+                        </div>
+                    </div>
+                    <div class="quiz-step" data-weight="1">
+                        <div class="quiz-q">Allocate risk using the slider</div>
+                        <div class="quiz-range">
+                            <input type="range" min="0" max="100" value="50" id="quiz-risk-slider" />
+                            <div class="quiz-hint">0 = Safety first • 100 = Max growth</div>
+                        </div>
+                    </div>
+                    <div class="quiz-step" data-weight="1">
+                        <div class="quiz-q">Pick sectors you enjoy following</div>
+                        <div class="quiz-options">
+                            <div class="quiz-option" data-score="1">Tech</div>
+                            <div class="quiz-option" data-score="1">Healthcare</div>
+                            <div class="quiz-option" data-score="1">Energy</div>
+                            <div class="quiz-option" data-score="1">Real Estate</div>
+                        </div>
+                        <div class="quiz-hint">This won't change your risk score much, but helps tailor ideas.</div>
+                    </div>
+                </div>
+                <div class="quiz-nav">
+                    <button type="button" class="header-btn" id="quiz-prev">Back</button>
+                    <button type="button" class="header-btn primary" id="quiz-next">Next</button>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="header-btn" id="quiz-cancel">Cancel</button>
+                    <button type="submit" class="header-btn primary">Save Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Include Authentication System -->
+    <script src="auth.js"></script>
+    <!-- Include Notification System -->
+    <script src="notifications.js"></script>
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'https://nexus-finance-ai.onrender.com'; // Backend Flask server
+        let currentUserId = 1; // Default user ID - will be updated from auth
+        let userInfo = null;
+        
+        // Load user info from localStorage
+        function loadUserInfo() {
+            const stored = localStorage.getItem('userInfo');
+            if (stored) {
+                userInfo = JSON.parse(stored);
+                // Update UI with user name if available
+                const userNameElement = document.querySelector('.user-name');
+                if (userNameElement && userInfo.name) {
+                    userNameElement.textContent = userInfo.name;
+                }
+            }
+        }
+        
+        // API Helper Functions
+       async function apiCall(endpoint, options = {}) {
+            try {
+                // ✅ FIX: Get the token from authManager
+                const token = authManager.getToken(); 
+                
+                const headers = {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                };
+                
+                // ✅ FIX: Add the token to the header
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+                
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    headers,
+                    ...options
+                });
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API call failed:', error);
+                
+                // Check if it's a network error (backend not running)
+                if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    showToast('Backend server is not running. Please start the Flask server.', 'error');
+                } else if (error.message.includes('401')) {
+                    showToast('Session expired. Please login again.', 'error');
+                    authManager.logout();
+                    window.location.href = 'login.html';
+                } else {
+                    showToast(`API Error: ${error.message}`, 'error');
+                }
+                throw error;
+            }
+        }
+        
+
+
+        // ✅ Load user profile from /auth/me endpoint
+        async function loadUserProfile() {
+            try {
+                const data = await apiCall('/auth/me');
+                
+                if (data.user) {
+                    const user = data.user;
+                    
+                    // Update the UI
+                    const userNameElement = document.querySelector('.user-name');
+                    const userEmailElement = document.querySelector('.user-email');
+                    const userAvatarElement = document.querySelector('.user-avatar');
+                    
+                    if (userNameElement) userNameElement.textContent = user.name || 'User';
+                    if (userEmailElement) userEmailElement.textContent = user.email || '';
+                    
+                    // Create initials for the avatar
+                    if (userAvatarElement && user.name) {
+                        const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                        userAvatarElement.textContent = initials || 'U';
+                    }
+                    
+                    // Store user info globally for other functions
+                    userInfo = user;
+                    currentUserId = user.id;
+                    return true; // Success
+                }
+                return false; // No user data
+            } catch (error) {
+                console.error("Failed to load user profile:", error);
+                // If it fails, log out
+                authManager.logout();
+                window.location.href = 'login.html';
+                return false; // Failure
+            }
+        }
+        // ✅ Load weekly focus from backend
+        async function loadWeeklyFocus() {
+            try {
+                const data = await apiCall('/weekly_focus');
+                if (data.focus_message) {
+                    const card = document.getElementById('weekly-focus-card');
+                    const messageEl = document.getElementById('weekly-focus-message');
+                    
+                    messageEl.textContent = data.focus_message;
+                    card.style.display = 'flex'; // Show the card
+                }
+            } catch (error) {
+                console.warn("Could not load weekly focus:", error);
+            }
+        }
+
+        // ✅ Load transactions helper
+        async function loadTransactions() {
+            // This function will refresh the transaction list
+            // For now, we'll just log it. We can build this later.
+            console.log("Reloading transaction list...");
+            // In a future step, we would call an API like GET /expenses
+            // and rebuild the HTML in the #transactions-list div.
+            // For now, the charts updating is enough.
+        }
+
+        // Test API connection on page load
+       // Test API connection on page load
+async function testApiConnection() {
+    try {
+        await apiCall('/summary');  // <-- CHANGED FROM '/' TO '/summary'
+        console.log('✅ Backend API connection successful');
+        return true;
+    } catch (error) {
+        console.warn('⚠️ Backend API connection failed:', error.message);
+        showToast('Cannot connect to backend server. Some features may not work.', 'warning');
+        return false;
+    }
+}
+        
+        // Financial Summary API Integration
+        async function loadFinancialSummary() {
+            try {
+                const summaryData = await apiCall('/summary');
+                
+                // --- Add this block to call the predict API ---
+                try {
+                    // Use the user's real income if available, or a default
+                    const income = userInfo?.income || 50000;
+
+                    // We don't have a specific investment amount, so we'll use a placeholder
+                    const investmentAmount = 5000; 
+
+                    const score = await getFinancialAdviceScore(
+                        income, 
+                        summaryData.total_spent, 
+                        investmentAmount
+                    );
+
+                    if (score) {
+                        document.getElementById('a-financial-score').textContent = `${score}/100`;
+                    }
+                } catch (e) {
+                    console.error("Could not load financial score:", e);
+                    document.getElementById('a-financial-score').textContent = "Error";
+                }
+                // --- End of new block ---
+                
+                // ✅ COMMENTED OUT: Don't overwrite demo metric values with API data
+                // document.querySelector('.overview-metrics .metric-card:nth-child(1) .metric-value').textContent = `₹${summaryData.net_worth.toLocaleString()}`; 
+                // document.querySelector('.overview-metrics .metric-card:nth-child(2) .metric-value').textContent = `₹${summaryData.total_assets.toLocaleString()}`;
+                // document.querySelector('.overview-metrics .metric-card:nth-child(3) .metric-value').textContent = `₹${summaryData.total_spent.toLocaleString()}`;
+                // document.querySelector('.overview-metrics .metric-card:nth-child(4) .metric-value').textContent = `₹${summaryData.total_liabilities.toLocaleString()}`;
+                
+                // ✅ COMMENTED OUT: Don't update total spent element
+                // const totalSpentElement = document.querySelector('.metric-value');
+                // if (totalSpentElement) {
+                //     totalSpentElement.textContent = `₹${summaryData.total_spent.toLocaleString()}`;
+                // }
+                
+                // Update category breakdown
+                const categoryBreakdown = summaryData.by_category;
+                const categoryKeys = Object.keys(categoryBreakdown);
+                
+                // Update analytics category chart with real data
+                if (window.aCategoryChart) {
+                    // Ensure we have data for all categories
+                    const allCategories = ['Housing', 'Food', 'Transportation', 'Utilities', 'Entertainment', 'Savings'];
+                    const chartData = allCategories.map(cat => categoryBreakdown[cat] || 0);
+                    
+                    window.aCategoryChart.data.datasets[0].data = chartData;
+                    window.aCategoryChart.update('active');
+                }
+                
+                // Update monthly spending chart with real data
+                if (window.aMonthlyChart) {
+                    // For now, we'll use current month data
+                    // In a real app, you'd have historical monthly data
+                    const currentMonth = new Date().getMonth();
+                    const monthlyData = Array(12).fill(0);
+                    monthlyData[currentMonth] = summaryData.total_spent;
+                    
+                    window.aMonthlyChart.data.datasets[0].data = monthlyData;
+                    window.aMonthlyChart.update('active');
+                }
+                
+                // Update budget vs spending chart
+                if (window.budgetVsSpendingChart) {
+                    const allCategories = ['Housing', 'Food', 'Transportation', 'Utilities', 'Entertainment', 'Savings'];
+                    const spentData = allCategories.map(cat => categoryBreakdown[cat] || 0);
+                    
+                    window.budgetVsSpendingChart.data.datasets[1].data = spentData;
+                    window.budgetVsSpendingChart.update('active');
+                }
+                
+                // Update top spending category
+                const topCategory = Object.keys(categoryBreakdown).reduce((a, b) => 
+                    categoryBreakdown[a] > categoryBreakdown[b] ? a : b, 'None');
+                const topSpent = categoryBreakdown[topCategory] || 0;
+                
+                const topCatElement = document.getElementById('a-top');
+                if (topCatElement) {
+                    topCatElement.textContent = `${topCategory}: ₹${topSpent.toLocaleString()}`;
+                }
+                
+                // Show alerts if any
+                if (summaryData.alerts && summaryData.alerts.length > 0) {
+                    summaryData.alerts.forEach(alert => {
+                        showToast(alert, 'warning');
+                    });
+                }
+                
+            } catch (error) {
+                console.error('Failed to load financial summary:', error);
+            }
+        }
+        
+        // Budget API Integration
+        async function createBudget(budgetData) {
+            try {
+                const response = await apiCall('/budget', {
+                    method: 'POST',
+                    body: JSON.stringify(budgetData)
+                });
+                
+                showToast('Budget created successfully');
+                return response;
+                
+            } catch (error) {
+                console.error('Failed to create budget:', error);
+                throw error;
+            }
+        }
+        
+        // Update Budget Display
+        function updateBudgetDisplay(budgetResponse) {
+            const budgetSplit = budgetResponse.budget_split;
+            // Calculate total budget from all individual categories
+            const totalBudget = (budgetSplit.Housing || 0) + 
+                               (budgetSplit.Food || 0) + 
+                               (budgetSplit.Transportation || 0) + 
+                               (budgetSplit.Utilities || 0) + 
+                               (budgetSplit.Entertainment || 0) + 
+                               (budgetSplit.Savings || 0);
+
+            // ✅ FIX 1: Fixes the "double text" bug
+            const totalBudgetElement = document.querySelector('.budget-total');
+            if (totalBudgetElement) {
+                totalBudgetElement.innerHTML = `<strong>Monthly Budget:</strong> ₹${totalBudget.toLocaleString()}`;
+            }
+
+            // ✅ FIX 2: Individual category budgets (Housing 30%, Food 15%, Transportation 10%, Utilities 10%, Entertainment 5%, Savings 30%)
+            const budgetAmounts = {};
+
+            // Directly use individual category budgets from backend
+            budgetAmounts['Housing'] = budgetSplit.Housing || 0;
+            budgetAmounts['Food'] = budgetSplit.Food || 0;
+            budgetAmounts['Transportation'] = budgetSplit.Transportation || 0;
+            budgetAmounts['Utilities'] = budgetSplit.Utilities || 0;
+            budgetAmounts['Entertainment'] = budgetSplit.Entertainment || 0;
+            budgetAmounts['Shopping'] = 0; // No budget assigned
+            budgetAmounts['Savings'] = budgetSplit.Savings || 0;
+
+            // Update the HTML
+            document.querySelectorAll('.budget-row').forEach(row => {
+                const catName = row.querySelector('.b-cat').textContent.trim();
+                if (budgetAmounts[catName] !== undefined) {
+                    const amountElement = row.querySelector('.b-amt');
+                    amountElement.textContent = `₹${budgetAmounts[catName].toLocaleString()}`;
+                }
+            });
+
+            // Update budget vs spending chart
+            if (window.budgetVsSpendingChart) {
+                const allCategories = window.budgetVsSpendingChart.data.labels;
+                const budgetData = allCategories.map(cat => budgetAmounts[cat] || 0);
+
+                window.budgetVsSpendingChart.data.datasets[0].data = budgetData;
+                window.budgetVsSpendingChart.update('active');
+            }
+
+            // Trigger budget progress update
+            if (typeof renderBudgetProgress === 'function') {
+                renderBudgetProgress();
+            }
+        }
+        
+        // Load existing budget from localStorage
+        function loadExistingBudget() {
+            const storedBudget = localStorage.getItem('userBudget');
+            if (storedBudget) {
+                try {
+                    const budgetData = JSON.parse(storedBudget);
+                    updateBudgetDisplay(budgetData);
+                } catch (error) {
+                    console.error('Failed to load budget from localStorage:', error);
+                }
+            }
+        }
+        
+        // Budget Progress and Validation
+        async function checkBudgetLimits(category, amount) {
+            try {
+                const summaryData = await apiCall('/summary');
+                const categorySpent = summaryData.by_category[category] || 0;
+                const totalAfterExpense = categorySpent + amount;
+                
+                // Get budget limit for this category
+                const budgetRow = Array.from(document.querySelectorAll('.budget-row')).find(row => {
+                    return row.querySelector('.b-cat').textContent.trim() === category;
+                });
+                
+                if (budgetRow) {
+                    const budgetAmount = parseFloat(budgetRow.querySelector('.b-amt').textContent.replace(/[₹$,]/g, ''));
+                    
+                    if (totalAfterExpense > budgetAmount) {
+                        return {
+                            overBudget: true,
+                            warning: `Budget exceeded in ${category}!`
+                        };
+                    } else if (totalAfterExpense > budgetAmount * 0.8) {
+                        return {
+                            overBudget: false,
+                            warning: `Approaching budget limit in ${category}`
+                        };
+                    }
+                }
+                
+                return { overBudget: false, warning: null };
+                
+            } catch (error) {
+                console.error('Failed to check budget limits:', error);
+                return { overBudget: false, warning: null };
+            }
+        }
+        
+        async function loadBudgetProgress() {
+            try {
+                const summaryData = await apiCall('/summary');
+                
+                // Update budget progress bars
+                document.querySelectorAll('.budget-progress').forEach(progressBar => {
+                    const category = progressBar.getAttribute('data-cat');
+                    const categorySpent = summaryData.by_category[category] || 0;
+                    
+                    const budgetRow = Array.from(document.querySelectorAll('.budget-row')).find(row => {
+                        return row.querySelector('.b-cat').textContent.trim() === category;
+                    });
+                    
+                    if (budgetRow) {
+                        const budgetAmount = parseFloat(budgetRow.querySelector('.b-amt').textContent.replace(/[₹$,]/g, ''));
+                        const percentage = Math.min((categorySpent / budgetAmount) * 100, 100);
+                        
+                        const bar = progressBar.querySelector('.budget-progress-bar');
+                        bar.style.width = `${percentage}%`;
+                        
+                        // Add warning classes
+                        if (percentage > 100) {
+                            bar.className = 'budget-progress-bar over';
+                        } else if (percentage > 80) {
+                            bar.className = 'budget-progress-bar warn';
+                        } else {
+                            bar.className = 'budget-progress-bar';
+                        }
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Failed to load budget progress:', error);
+            }
+        }
+        
+        // Forecast API Integration
+        async function loadForecast(userId = currentUserId) {
+            try {
+                const forecastData = await apiCall(`/forecast/${userId}?periods=6`);
+                
+                if (forecastData.error) {
+                    console.warn('Forecast error:', forecastData.error);
+                    // Create a simple forecast display even without historical data
+                    createSimpleForecastDisplay();
+                    return null;
+                }
+                
+                // Create enhanced forecast chart
+                createForecastChart(forecastData);
+                
+                return forecastData;
+                
+            } catch (error) {
+                console.error('Failed to load forecast:', error);
+                createSimpleForecastDisplay();
+                return null;
+            }
+        }
+        
+        // Create enhanced forecast chart
+        function createForecastChart(forecastData) {
+            const historyLabels = forecastData.history.map(h => h.month);
+            const historyData = forecastData.history.map(h => h.amount);
+            const forecastLabels = forecastData.forecast.map(f => f.month);
+            const forecastAmounts = forecastData.forecast.map(f => f.predicted_amount);
+            
+            // Create forecast chart if it doesn't exist
+            if (!window.forecastChart) {
+                const forecastCtx = document.getElementById('forecast-chart');
+                if (forecastCtx) {
+                    window.forecastChart = new Chart(forecastCtx.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: [...historyLabels, ...forecastLabels],
+                            datasets: [{
+                                label: 'Historical Spending',
+                                data: [...historyData, ...Array(forecastLabels.length).fill(null)],
+                                borderColor: '#4361ee',
+                                backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }, {
+                                label: 'Forecasted Spending',
+                                data: [...Array(historyLabels.length).fill(null), ...forecastAmounts],
+                                borderColor: '#f72585',
+                                backgroundColor: 'rgba(247, 37, 133, 0.1)',
+                                borderDash: [5, 5],
+                                tension: 0.4,
+                                fill: false
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Expense Forecasting (ARIMA Model)',
+                                    font: { size: 16, weight: 'bold' }
+                                },
+                                legend: {
+                                    display: true,
+                                    position: 'top'
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return '₹' + value.toLocaleString();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            } else {
+                // Update existing chart
+                window.forecastChart.data.labels = [...historyLabels, ...forecastLabels];
+                window.forecastChart.data.datasets[0].data = [...historyData, ...Array(forecastLabels.length).fill(null)];
+                window.forecastChart.data.datasets[1].data = [...Array(historyLabels.length).fill(null), ...forecastAmounts];
+                window.forecastChart.update('active');
+            }
+            
+            // Update forecast summary
+            const avgForecast = forecastAmounts.reduce((a, b) => a + b, 0) / forecastAmounts.length;
+            const forecastSummary = document.getElementById('forecast-summary');
+            if (forecastSummary) {
+                forecastSummary.innerHTML = `
+                    <div class="forecast-item">
+                        <span class="forecast-label">Next 3 Months Avg:</span>
+                        <span class="forecast-value">₹${Math.round(avgForecast).toLocaleString()}</span>
+                    </div>
+                    <div class="forecast-item">
+                        <span class="forecast-label">Trend:</span>
+                        <span class="forecast-value ${forecastAmounts[0] < forecastAmounts[forecastAmounts.length-1] ? 'trend-up' : 'trend-down'}">
+                            ${forecastAmounts[0] < forecastAmounts[forecastAmounts.length-1] ? '↗ Increasing' : '↘ Decreasing'}
+                        </span>
+                    </div>
+                `;
+            }
+        }
+        
+        // Create simple forecast display when no data available
+        function createSimpleForecastDisplay() {
+            const forecastSummary = document.getElementById('forecast-summary');
+            if (forecastSummary) {
+                forecastSummary.innerHTML = `
+                    <div class="forecast-item">
+                        <span class="forecast-label">Status:</span>
+                        <span class="forecast-value">Add more expenses to see forecasts</span>
+                    </div>
+                    <div class="forecast-item">
+                        <span class="forecast-label">Tip:</span>
+                        <span class="forecast-value">Track expenses for 3+ months for accurate predictions</span>
+                    </div>
+                `;
+            }
+        }
+        
+        // Recommendations API Integration
+     async function loadRecommendations(userId = currentUserId) {
+            try {
+                // ✅ FIX: Use the new, correct URL (no user ID)
+                // ✅ FIX: Use correct URL without userId
+                const recommendations = await apiCall(`/recommendations?n=6`);
+                
+                if (recommendations.error) {
+                    console.warn('Recommendations error:', recommendations.error);
+                    // Show default recommendations when API fails
+                    showDefaultRecommendations();
+                    return null;
+                }
+                
+                // Update recommendations display with enhanced cards
+                displayEnhancedRecommendations(recommendations);
+                
+                // Load user clustering data
+                loadUserClustering();
+                
+                return recommendations;
+                
+            } catch (error) {
+                console.error('Failed to load recommendations:', error);
+                showDefaultRecommendations();
+                return null;
+            }
+        }
+        
+        // Display enhanced recommendations with detailed information
+        function displayEnhancedRecommendations(recommendations) {
+            const recommendationsGrid = document.getElementById('investments-grid');
+            if (!recommendationsGrid) return;
+            
+            recommendationsGrid.innerHTML = '';
+            
+            recommendations.recommendations.forEach((rec, index) => {
+                const recCard = document.createElement('div');
+                recCard.className = 'opportunity-card enhanced-recommendation';
+                recCard.innerHTML = `
+                    <div class="opportunity-header">
+                        <div class="opportunity-icon">
+                            <span class="material-icons">${getRecommendationIcon(rec.scheme)}</span>
+                        </div>
+                        <div class="opportunity-badge">
+                            <span class="chip ${getRecommendationType(rec.reason)}">${getRecommendationType(rec.reason)}</span>
+                        </div>
+                    </div>
+                    <div class="opportunity-content">
+                        <h4>${rec.scheme}</h4>
+                        <p class="recommendation-reason">${rec.reason}</p>
+                        <div class="recommendation-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Risk Level:</span>
+                                <span class="meta-value ${getRiskLevel(rec.scheme)}">${getRiskLevel(rec.scheme)}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Min. Investment:</span>
+                                <span class="meta-value">₹${getMinInvestment(rec.scheme)}</span>
+                            </div>
+                        </div>
+                        <div class="recommendation-actions">
+                            <button class="btn btn-sm btn-primary" onclick="learnMore('${rec.scheme}')">
+                                Learn More
+                            </button>
+                            <button class="btn btn-sm btn-outline" onclick="addToWatchlist('${rec.scheme}')">
+                                Watchlist
+                            </button>
+                        </div>
+                    </div>
+                `;
+                recommendationsGrid.appendChild(recCard);
+            });
+            
+            // Add clustering info if available
+            if (recommendations.cluster !== null) {
+                addClusteringInfo(recommendations.cluster);
+            }
+        }
+        
+        // Show default recommendations when API fails
+        function showDefaultRecommendations() {
+            const recommendationsGrid = document.getElementById('investments-grid');
+            if (!recommendationsGrid) return;
+            
+            const defaultRecommendations = [
+                {
+                    scheme: "Index Fund SIP",
+                    reason: "Diversified growth with low expense ratio",
+                    type: "Balanced"
+                },
+                {
+                    scheme: "Large Cap Equity Funds",
+                    reason: "Stable returns from established companies",
+                    type: "Conservative"
+                },
+                {
+                    scheme: "Balanced Mutual Funds",
+                    reason: "Mix of equity and debt for moderate risk",
+                    type: "Balanced"
+                }
+            ];
+            
+            recommendationsGrid.innerHTML = '';
+            defaultRecommendations.forEach(rec => {
+                const recCard = document.createElement('div');
+                recCard.className = 'opportunity-card enhanced-recommendation';
+                recCard.innerHTML = `
+                    <div class="opportunity-header">
+                        <div class="opportunity-icon">
+                            <span class="material-icons">trending_up</span>
+                        </div>
+                        <div class="opportunity-badge">
+                            <span class="chip ${rec.type.toLowerCase()}">${rec.type}</span>
+                        </div>
+                    </div>
+                    <div class="opportunity-content">
+                        <h4>${rec.scheme}</h4>
+                        <p class="recommendation-reason">${rec.reason}</p>
+                        <div class="recommendation-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Risk Level:</span>
+                                <span class="meta-value ${rec.type.toLowerCase()}">${rec.type}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Min. Investment:</span>
+                                <span class="meta-value">₹500</span>
+                            </div>
+                        </div>
+                        <div class="recommendation-actions">
+                            <button class="btn btn-sm btn-primary" onclick="learnMore('${rec.scheme}')">
+                                Learn More
+                            </button>
+                            <button class="btn btn-sm btn-outline" onclick="addToWatchlist('${rec.scheme}')">
+                                Watchlist
+                            </button>
+                        </div>
+                    </div>
+                `;
+                recommendationsGrid.appendChild(recCard);
+            });
+        }
+        
+        // Helper functions for recommendation display
+        function getRecommendationIcon(scheme) {
+            const schemeLower = scheme.toLowerCase();
+            if (schemeLower.includes('equity') || schemeLower.includes('stock')) return 'trending_up';
+            if (schemeLower.includes('bond') || schemeLower.includes('debt')) return 'account_balance';
+            if (schemeLower.includes('index') || schemeLower.includes('etf')) return 'bar_chart';
+            if (schemeLower.includes('sip') || schemeLower.includes('mutual')) return 'savings';
+            if (schemeLower.includes('fixed') || schemeLower.includes('fd')) return 'lock';
+            return 'trending_up';
+        }
+        
+        function getRecommendationType(reason) {
+            const reasonLower = reason.toLowerCase();
+            if (reasonLower.includes('high') || reasonLower.includes('aggressive')) return 'high';
+            if (reasonLower.includes('low') || reasonLower.includes('conservative')) return 'low';
+            return 'medium';
+        }
+        
+        function getRiskLevel(scheme) {
+            const schemeLower = scheme.toLowerCase();
+            if (schemeLower.includes('equity') || schemeLower.includes('stock')) return 'high';
+            if (schemeLower.includes('bond') || schemeLower.includes('debt') || schemeLower.includes('fixed')) return 'low';
+            return 'medium';
+        }
+        
+        function getMinInvestment(scheme) {
+            const schemeLower = scheme.toLowerCase();
+            if (schemeLower.includes('sip') || schemeLower.includes('mutual')) return '500';
+            if (schemeLower.includes('fixed') || schemeLower.includes('fd')) return '1000';
+            if (schemeLower.includes('bond') || schemeLower.includes('debt')) return '5000';
+            return '1000';
+        }
+        
+        // User clustering functionality
+        async function loadUserClustering() {
+            try {
+                const clusterData = await apiCall('/cluster_users');
+                
+                if (clusterData.error) {
+                    console.warn('Clustering error:', clusterData.error);
+                    return null;
+                }
+                
+                // Display clustering information
+                addClusteringInfo(clusterData);
+                
+                return clusterData;
+                
+            } catch (error) {
+                console.error('Failed to load user clustering:', error);
+                return null;
+            }
+        }
+        
+        // Add clustering information to dashboard
+        function addClusteringInfo(clusterData) {
+            // Find or create clustering info section
+            let clusteringSection = document.getElementById('clustering-info');
+            if (!clusteringSection) {
+                clusteringSection = document.createElement('div');
+                clusteringSection.id = 'clustering-info';
+                clusteringSection.className = 'clustering-section';
+                
+                // Insert after investments section
+                const investmentsSection = document.querySelector('#section-investments');
+                if (investmentsSection) {
+                    investmentsSection.appendChild(clusteringSection);
+                }
+            }
+            
+            // Calculate cluster statistics
+            const clusters = clusterData.clusters || [];
+            const clusterStats = clusters.reduce((acc, user) => {
+                const cluster = user.cluster;
+                if (!acc[cluster]) {
+                    acc[cluster] = { count: 0, avgIncome: 0, totalIncome: 0 };
+                }
+                acc[cluster].count++;
+                acc[cluster].totalIncome += user.income;
+                acc[cluster].avgIncome = acc[cluster].totalIncome / acc[cluster].count;
+                return acc;
+            }, {});
+            
+            clusteringSection.innerHTML = `
+                <div class="clustering-header">
+                    <h3>User Clustering Analysis</h3>
+                    <p>Based on similar financial profiles</p>
+                </div>
+                <div class="cluster-grid">
+                    ${Object.keys(clusterStats).map(clusterId => `
+                        <div class="cluster-card">
+                            <div class="cluster-header">
+                                <span class="cluster-id">Cluster ${parseInt(clusterId) + 1}</span>
+                                <span class="cluster-count">${clusterStats[clusterId].count} users</span>
+                            </div>
+                            <div class="cluster-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">Avg. Income:</span>
+                                    <span class="stat-value">₹${Math.round(clusterStats[clusterId].avgIncome).toLocaleString()}</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Risk Profile:</span>
+                                    <span class="stat-value">${getClusterRiskProfile(clusterId)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="clustering-insights">
+                    <h4>Insights:</h4>
+                    <ul>
+                        <li>Users are grouped by income level, risk tolerance, and financial goals</li>
+                        <li>Recommendations are personalized based on similar user behaviors</li>
+                        <li>Your cluster helps identify the most suitable investment strategies</li>
+                    </ul>
+                </div>
+            `;
+        }
+        
+        function getClusterRiskProfile(clusterId) {
+            const riskProfiles = ['Conservative', 'Balanced', 'Aggressive'];
+            return riskProfiles[parseInt(clusterId)] || 'Balanced';
+        }
+        
+        // Interactive recommendation functions
+        function learnMore(scheme) {
+            showToast(`Learn more about ${scheme} - Feature coming soon!`, 'info');
+        }
+        
+        function addToWatchlist(scheme) {
+            // Store in localStorage for now
+            const watchlist = JSON.parse(localStorage.getItem('investmentWatchlist') || '[]');
+            if (!watchlist.includes(scheme)) {
+                watchlist.push(scheme);
+                localStorage.setItem('investmentWatchlist', JSON.stringify(watchlist));
+                showToast(`${scheme} added to watchlist!`, 'success');
+            } else {
+                showToast(`${scheme} is already in your watchlist!`, 'info');
+            }
+        }
+        
+        // Global variables for recommendations
+        let currentRecommendations = [];
+        
+        // Filter and sort functions
+        function filterRecommendations() {
+            const riskFilter = document.getElementById('risk-filter').value;
+            const recommendationsGrid = document.getElementById('investments-grid');
+            
+            if (!recommendationsGrid) return;
+            
+            const cards = recommendationsGrid.querySelectorAll('.enhanced-recommendation');
+            
+            cards.forEach(card => {
+                const riskLevel = card.querySelector('.meta-value').textContent.toLowerCase();
+                const shouldShow = riskFilter === 'all' || riskLevel === riskFilter;
+                
+                card.style.display = shouldShow ? 'block' : 'none';
+            });
+        }
+        
+        function sortRecommendations() {
+            const sortBy = document.getElementById('sort-by').value;
+            const recommendationsGrid = document.getElementById('investments-grid');
+            
+            if (!recommendationsGrid) return;
+            
+            const cards = Array.from(recommendationsGrid.querySelectorAll('.enhanced-recommendation'));
+            
+            cards.sort((a, b) => {
+                switch (sortBy) {
+                    case 'risk':
+                        const riskA = a.querySelector('.meta-value').textContent.toLowerCase();
+                        const riskB = b.querySelector('.meta-value').textContent.toLowerCase();
+                        const riskOrder = { 'low': 1, 'medium': 2, 'high': 3 };
+                        return (riskOrder[riskA] || 2) - (riskOrder[riskB] || 2);
+                    
+                    case 'investment':
+                        const investA = parseInt(a.querySelector('.meta-value:last-child').textContent.replace(/[₹,]/g, ''));
+                        const investB = parseInt(b.querySelector('.meta-value:last-child').textContent.replace(/[₹,]/g, ''));
+                        return investA - investB;
+                    
+                    case 'name':
+                        const nameA = a.querySelector('h4').textContent.toLowerCase();
+                        const nameB = b.querySelector('h4').textContent.toLowerCase();
+                        return nameA.localeCompare(nameB);
+                    
+                    default:
+                        return 0;
+                }
+            });
+            
+            // Re-append sorted cards
+            cards.forEach(card => recommendationsGrid.appendChild(card));
+        }
+        
+        function refreshRecommendations() {
+            loadRecommendations();
+            showToast('Recommendations refreshed!', 'success');
+        }
+        
+        // Investment API Integration
+        async function getInvestmentSuggestions(riskProfile, savingsAmount) {
+            try {
+                const response = await apiCall('/investment', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        risk: riskProfile,
+                        savings: savingsAmount
+                    })
+                });
+                
+                return response.suggestions;
+                
+            } catch (error) {
+                console.error('Failed to get investment suggestions:', error);
+                return [];
+            }
+        }
+        
+        // Predict API Integration
+        async function getFinancialAdviceScore(monthlyIncome, monthlyExpenses, investmentAmount) {
+            try {
+                const response = await apiCall('/predict', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        monthly_income: monthlyIncome,
+                        monthly_expense_total: monthlyExpenses,
+                        investment_amount: investmentAmount
+                    })
+                });
+                
+                return response.prediction;
+                
+            } catch (error) {
+                console.error('Failed to get financial advice score:', error);
+                return null;
+            }
+        }
+        
+        // ✅ Initialize app with all charts and UI elements
+        function initializeApp() {
+
+            // Net Worth Chart
+            const netWorthCtx = document.getElementById('netWorthChart').getContext('2d');
+            const netWorthChart = new Chart(netWorthCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Net Worth',
+                        data: [185000, 192000, 198000, 203000, 210000, 215000, 222000, 228000, 235000, 240000, 245000, 248759],
+                        borderColor: '#4361ee',
+                        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Investments',
+                        data: [120000, 125000, 130000, 135000, 142000, 148000, 155000, 162000, 168000, 175000, 182000, 189000],
+                        borderColor: '#4cc9f0',
+                        backgroundColor: 'rgba(76, 201, 240, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ₹' + context.raw.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Market Chart
+            const marketCtx = document.getElementById('marketChart').getContext('2d');
+            const marketChart = new Chart(marketCtx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 30}, (_, i) => i + 1 + ' Nov'),
+                    datasets: [{
+                        label: 'S&P 500',
+                        data: [4231, 4256, 4289, 4321, 4302, 4287, 4312, 4334, 4356, 4378, 
+                               4392, 4412, 4431, 4456, 4478, 4492, 4512, 4531, 4556, 4578, 
+                               4592, 4612, 4631, 4656, 4678, 4692, 4712, 4731, 4756, 4567],
+                        borderColor: '#4361ee',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+            
+            // Allocation Chart
+            const allocationCtx = document.getElementById('allocationChart').getContext('2d');
+            const allocationChart = new Chart(allocationCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['US Stocks', 'International Stocks', 'Bonds', 'Real Estate', 'Cash', 'Crypto'],
+                    datasets: [{
+                        data: [45, 20, 15, 10, 5, 5],
+                        backgroundColor: [
+                            '#4361ee',
+                            '#4cc9f0',
+                            '#2ec4b6',
+                            '#ff9f1c',
+                            '#f8f9fa',
+                            '#7209b7'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.raw + '%';
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+            
+            // Analytics Charts
+            const aMonthlyCtx = document.getElementById('a-monthly').getContext('2d');
+            const aMonthlyChart = new Chart(aMonthlyCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Spending',
+                        data: [1850, 2100, 1950, 2200, 2300, 2450, 2600, 2500, 2350, 2100, 2250, 2458],
+                        backgroundColor: '#4361ee'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            const aCategoryCtx = document.getElementById('a-category').getContext('2d');
+            window.aCategoryChart = new Chart(aCategoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Housing', 'Food', 'Transportation', 'Utilities', 'Entertainment', 'Savings'],
+                    datasets: [{
+                        data: [1200, 600, 350, 200, 300, 850],
+                        backgroundColor: [
+                            '#4361ee',
+                            '#4cc9f0',
+                            '#2ec4b6',
+                            '#ff9f1c',
+                            '#f72585',
+                            '#7209b7'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            // Budget vs Spending Chart
+            const budgetVsSpendingCtx = document.getElementById('budget-vs-spending').getContext('2d');
+            window.budgetVsSpendingChart = new Chart(budgetVsSpendingCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Housing', 'Food', 'Transportation', 'Utilities', 'Entertainment', 'Savings'],
+                    datasets: [{
+                        label: 'Budget',
+                        data: [1200, 600, 350, 200, 300, 850],
+                        backgroundColor: 'rgba(67, 97, 238, 0.6)',
+                        borderColor: '#4361ee',
+                        borderWidth: 1
+                    }, {
+                        label: 'Spent',
+                        data: [0, 0, 0, 0, 0, 0],
+                        backgroundColor: 'rgba(247, 37, 133, 0.6)',
+                        borderColor: '#f72585',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Simulate real-time data for market chart
+            setInterval(() => {
+                const lastValue = marketChart.data.datasets[0].data[marketChart.data.datasets[0].data.length - 1];
+                const newValue = lastValue + (Math.random() * 20 - 10);
+                marketChart.data.datasets[0].data.push(newValue);
+                marketChart.data.labels.push(new Date().toLocaleTimeString());
+                if (marketChart.data.datasets[0].data.length > 30) {
+                    marketChart.data.datasets[0].data.shift();
+                    marketChart.data.labels.shift();
+                }
+                marketChart.update();
+            }, 3000);
+        }
+
+        // ✅ This is the NEW security check that runs first
+        document.addEventListener('DOMContentLoaded', async function() {
+            
+            // 1. Check if token exists
+            if (!authManager.isAuthenticated()) {
+                // If no token, go to login
+                window.location.href = 'login.html';
+                return; 
+            }
+
+            // 2. If token exists, fetch the user's REAL name
+            const loaded = await loadUserProfile();
+            
+            if (loaded) {
+                // 3. If user is loaded, initialize all the charts
+                initializeApp();
+
+                // 4. Now, load all the financial data
+                testApiConnection().then(isConnected => {
+                    if (isConnected) {
+                        loadFinancialSummary();
+                        loadRecommendations();
+                        loadBudgetProgress();
+                        loadWeeklyFocus(); // ✅ Load weekly focus
+                        // loadForecast() is correctly removed
+                    }
+                });
+            }
+        });
+        
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // Remove active class from all items
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                
+                // Add active class to clicked item
+                this.classList.add('active');
+                
+                // Hide all sections
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.style.display = 'none';
+                });
+                
+                // Show the selected section
+                const sectionId = 'section-' + this.dataset.section;
+                document.getElementById(sectionId).style.display = 'block';
+                
+                // Close mobile sidebar if open
+                if (window.innerWidth < 992) {
+                    document.getElementById('sidebar').classList.remove('open');
+                }
+            });
+        });
+        
+        // Mobile Menu Toggle
+        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+        
+        // AI Chat Functionality
+        const aiSendBtn = document.getElementById('ai-send-btn');
+        const aiInput = document.getElementById('ai-input');
+        const aiChat = document.getElementById('ai-chat');
+        
+        aiSendBtn.addEventListener('click', sendMessage);
+        aiInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+        
+        function sendMessage() {
+            const message = aiInput.value.trim();
+            if (message) {
+                // Add user message
+                const userMsg = document.createElement('div');
+                userMsg.className = 'ai-message user';
+                userMsg.textContent = message;
+                aiChat.appendChild(userMsg);
+                
+                // Clear input
+                aiInput.value = '';
+                
+                // Scroll to bottom
+                aiChat.scrollTop = aiChat.scrollHeight;
+                
+                // Simulate AI response after delay
+                setTimeout(() => {
+                    const botMsg = document.createElement('div');
+                    botMsg.className = 'ai-message bot';
+                    
+                    // Simple response logic (in a real app, this would call an API)
+                    if (message.toLowerCase().includes('portfolio')) {
+                        botMsg.innerHTML = `Based on your current portfolio allocation, I recommend:<br><br>
+                            - <strong>Rebalance tech stocks</strong> from 32% to 25%<br>
+                            - <strong>Increase international exposure</strong> to 20%<br>
+                            - <strong>Add inflation-protected bonds</strong> for stability<br><br>
+                            Would you like me to generate specific trade recommendations?`;
+                    } else if (message.toLowerCase().includes('stock') || message.toLowerCase().includes('invest')) {
+                        botMsg.innerHTML = `Here are 3 high-conviction stock ideas based on your risk profile:<br><br>
+                            1. <strong>Microsoft (MSFT)</strong> - Cloud growth + AI leadership<br>
+                            2. <strong>Eli Lilly (LLY)</strong> - GLP-1 drug dominance<br>
+                            3. <strong>Taiwan Semiconductor (TSM)</strong> - Chip industry backbone<br><br>
+                            I can provide detailed analysis for any of these.`;
+                    } else if (message.toLowerCase().includes('savings') || message.toLowerCase().includes('save')) {
+                        botMsg.innerHTML = `To optimize your savings:<br><br>
+                            - <strong>High-yield savings:</strong> Move ₹15,000 to CIT Bank (5.05% APY)<br>
+                            - <strong>CD ladder:</strong> 3-month, 6-month, and 12-month CDs for liquidity<br>
+                            - <strong>I-Bonds:</strong> ₹10,000 for inflation protection<br><br>
+                            This could earn you ~₹1,200 more annually.`;
+                    } else {
+                        botMsg.textContent = "I've analyzed your financial situation and can provide specific recommendations. Would you like help with: investments, savings, debt management, or retirement planning?";
+                    }
+                    
+                    aiChat.appendChild(botMsg);
+                    aiChat.scrollTop = aiChat.scrollHeight;
+                }, 1000);
+            }
+        }
+        
+        // Modal Handling
+        const expenseModal = document.getElementById('expense-modal');
+        const riskQuizModal = document.getElementById('risk-quiz-modal');
+        
+        document.getElementById('new-transaction-btn').addEventListener('click', function() {
+            expenseModal.style.display = 'flex';
+        });
+        
+        document.getElementById('add-expense-btn').addEventListener('click', function() {
+            expenseModal.style.display = 'flex';
+        });
+        
+        document.getElementById('risk-quiz-btn').addEventListener('click', function() {
+            riskQuizModal.style.display = 'flex';
+            initRiskQuiz();
+        });
+        
+        document.getElementById('expense-cancel').addEventListener('click', function() {
+            expenseModal.style.display = 'none';
+        });
+        
+        document.getElementById('quiz-cancel').addEventListener('click', function() {
+            riskQuizModal.style.display = 'none';
+        });
+        
+        // Budget Modal Event Handlers
+        const budgetModal = document.getElementById('budget-modal');
+        const createBudgetBtn = document.getElementById('create-budget-btn');
+        const budgetClose = document.getElementById('budget-close');
+        const budgetCancel = document.getElementById('budget-cancel');
+        
+        createBudgetBtn.addEventListener('click', function() {
+            budgetModal.style.display = 'block';
+        });
+        
+        budgetClose.addEventListener('click', function() {
+            budgetModal.style.display = 'none';
+        });
+        
+        budgetCancel.addEventListener('click', function() {
+            budgetModal.style.display = 'none';
+        });
+        
+        window.addEventListener('click', function(event) {
+            if (event.target === budgetModal) {
+                budgetModal.style.display = 'none';
+            }
+        });
+        
+        // Budget Form Submission
+        document.getElementById('budget-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const budgetData = {
+                income: parseFloat(document.getElementById('budget-income').value),
+                goal: document.getElementById('budget-goal').value,
+                risk_profile: document.getElementById('budget-risk').value
+            };
+            
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Creating...';
+            submitBtn.disabled = true;
+            
+            try {
+                // Call API
+                const response = await createBudget(budgetData);
+                
+                // Success
+                budgetModal.style.display = 'none';
+                showToast('Budget created successfully!');
+                
+                // Clear form
+                this.reset();
+                
+                // Update budget display
+                updateBudgetDisplay(response);
+                
+                // Store budget info
+                localStorage.setItem('userBudget', JSON.stringify(response));
+                
+            } catch (error) {
+                console.error('Failed to create budget:', error);
+                showToast('Failed to create budget. Please try again.', 'error');
+            } finally {
+                // Reset button state
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+        
+        document.getElementById('expense-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const expenseData = {
+                user_id: currentUserId,
+                category: document.getElementById('expense-category').value,
+                amount: parseFloat(document.getElementById('expense-amount').value),
+                date: document.getElementById('expense-date').value
+            };
+            
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            let originalText = 'Submit';
+            let buttonDisabled = false;
+            
+            if (submitBtn) {
+                originalText = submitBtn.textContent;
+                submitBtn.textContent = 'Adding...';
+                submitBtn.disabled = true;
+                buttonDisabled = true;
+            }
+            
+            try {
+                // 3. Call the API
+                const response = await apiCall('/expense', {
+                    method: 'POST',
+                    body: JSON.stringify(expenseData)
+                });
+
+                // 4. Handle Success
+                expenseModal.style.display = 'none';
+                this.reset();
+
+                // ✅ CHECK FOR THE SMART NUDGE
+                if (response.nudge_message) {
+                    // If the backend sent a nudge, show it
+                    showToast(response.nudge_message, 'warning'); 
+                } else {
+                    // Otherwise, show a simple success
+                    showToast('Expense added successfully!', 'success');
+                }
+
+                // 5. Refresh data from the server
+                loadFinancialSummary();
+                loadBudgetProgress();
+                loadTransactions(); 
+            } catch (error) {
+                console.error('Failed to add expense:', error);
+                showToast('Failed to add expense. Please try again.', 'error');
+            } finally {
+                // Reset button state
+                if (submitBtn && buttonDisabled) {
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                }
+            }
+        });
+        
+        document.getElementById('risk-quiz-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const scoreData = computeQuizScore();
+            const riskLevel = scoreData.level;
+            // Persist to invest prefs
+            const prefs = loadState(STORAGE_KEYS.investPrefs, {});
+            prefs.risk = riskLevel;
+            saveState(STORAGE_KEYS.investPrefs, prefs);
+            // Reflect in dropdown if present
+            const riskSel = document.getElementById('invest-risk');
+            if (riskSel) riskSel.value = riskLevel;
+            riskQuizModal.style.display = 'none';
+            showToast(`Risk profile: ${riskLevel} (${scoreData.score})`);
+        });
+        
+        // Close modals when clicking outside
+        window.addEventListener('click', function(e) {
+            if (e.target === expenseModal) {
+                expenseModal.style.display = 'none';
+            }
+            if (e.target === riskQuizModal) {
+                riskQuizModal.style.display = 'none';
+            }
+        });
+        
+        // Toast Functionality
+        function showToast(message) {
+            const toast = document.getElementById('app-toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+        
+        // Refresh Button
+        document.getElementById('refresh-btn').addEventListener('click', function() {
+            showToast('Data refreshed');
+        });
+        
+        // Export Button
+        document.getElementById('export-btn').addEventListener('click', function() {
+            showToast('Export started. You will receive an email shortly.');
+        });
+        
+        // Logout Button
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            if (confirm('Are you sure you want to logout?')) {
+                authManager.logout();
+                window.location.href = 'login.html';
+            }
+        });
+        
+        // Investment Suggestions
+        function generateInvestmentSuggestions() {
+            const suggestions = [
+                {
+                    name: 'Tech Growth ETF',
+                    meta: 'Vanguard Information Technology',
+                    return1y: '+32.5%',
+                    risk: 'High',
+                    ai: '92/100',
+                    tag: 'Tech'
+                },
+                {
+                    name: 'Dividend Aristocrats',
+                    meta: 'ProShares S&P 500 Dividend',
+                    return1y: '+12.8%',
+                    risk: 'Low',
+                    ai: '85/100',
+                    tag: 'Income'
+                },
+                {
+                    name: 'Green Energy Fund',
+                    meta: 'iShares Global Clean Energy',
+                    return1y: '+18.3%',
+                    risk: 'Medium',
+                    ai: '88/100',
+                    tag: 'ESG'
+                }
+            ];
+            
+            const grid = document.getElementById('investments-grid');
+            grid.innerHTML = '';
+            
+            suggestions.forEach(suggestion => {
+                const card = document.createElement('div');
+                card.className = 'opportunity-card';
+                card.innerHTML = `
+                    <div class="opportunity-header">
+                        <div class="opportunity-icon">
+                            <span class="material-icons">trending_up</span>
+                        </div>
+                        <div>
+                            <div class="opportunity-name">${suggestion.name}</div>
+                            <div class="opportunity-meta">${suggestion.meta}</div>
+                        </div>
+                    </div>
+                    <div class="opportunity-stats">
+                        <div class="opportunity-stat">
+                            <div class="stat-label">1Y Return</div>
+                            <div class="stat-value positive">${suggestion.return1y}</div>
+                        </div>
+                        <div class="opportunity-stat">
+                            <div class="stat-label">Risk</div>
+                            <div class="stat-value">${suggestion.risk}</div>
+                        </div>
+                        <div class="opportunity-stat">
+                            <div class="stat-label">AI Score</div>
+                            <div class="stat-value positive">${suggestion.ai}</div>
+                        </div>
+                    </div>
+                    <div class="opportunity-footer">
+                        <span class="chip ${suggestion.risk === 'Low' ? 'success' : suggestion.risk === 'High' ? 'danger' : 'primary'}">${suggestion.tag}</span>
+                        <button class="btn-ghost">
+                            <span class="material-icons">add_to_queue</span>
+                        </button>
+                    </div>`;
+                grid.appendChild(card);
+            });
+        }
+
+        // Initial load + wire refresh button if present
+        generateInvestmentSuggestions();
+        document.getElementById('refresh-invest-suggestions')?.addEventListener('click', generateInvestmentSuggestions);
+        
+        // Quiz logic
+        let quizState = { step: 0 };
+        function initRiskQuiz() {
+            quizState = { step: 0 };
+            updateQuizUI();
+            wireQuizInteractions();
+        }
+        function updateQuizUI() {
+            const steps = Array.from(document.querySelectorAll('#quiz-steps .quiz-step'));
+            steps.forEach((s, i) => s.classList.toggle('active', i === quizState.step));
+            const bar = document.getElementById('quiz-progress-bar');
+            if (bar) bar.style.width = `${((quizState.step) / (steps.length - 1)) * 100}%`;
+            document.getElementById('quiz-prev').disabled = quizState.step === 0;
+            document.getElementById('quiz-next').textContent = quizState.step === steps.length - 1 ? 'Review' : 'Next';
+        }
+        function wireQuizInteractions() {
+            const steps = document.getElementById('quiz-steps');
+            steps.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.addEventListener('click', () => {
+                    const group = opt.parentElement;
+                    group.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+                    opt.classList.add('selected');
+                });
+            });
+            document.getElementById('quiz-prev').onclick = () => { if (quizState.step > 0) { quizState.step--; updateQuizUI(); } };
+            document.getElementById('quiz-next').onclick = () => {
+                const totalSteps = document.querySelectorAll('#quiz-steps .quiz-step').length;
+                if (quizState.step < totalSteps - 1) { quizState.step++; updateQuizUI(); }
+            };
+        }
+        function computeQuizScore() {
+            const steps = Array.from(document.querySelectorAll('#quiz-steps .quiz-step'));
+            let score = 0;
+            let weightSum = 0;
+            steps.forEach((step, idx) => {
+                const weight = parseFloat(step.dataset.weight || '1');
+                weightSum += weight;
+                if (idx === 3) { // slider step
+                    const v = parseFloat(document.getElementById('quiz-risk-slider').value || '50');
+                    score += (v / 100) * 3 * weight;
+                } else {
+                    const selected = step.querySelector('.quiz-option.selected');
+                    const s = parseFloat(selected?.dataset.score || '0');
+                    score += s * weight;
+                }
+            });
+            const normalized = Math.round((score / (3 * weightSum)) * 100);
+            const level = normalized < 35 ? 'Low' : normalized < 70 ? 'Medium' : 'High';
+            return { score: normalized, level };
+        }
+        
+        // Floating AI runtime
+        const AI_STORE_KEY = 'nf_floating_ai_history';
+        function loadAIHistory() { try { return JSON.parse(localStorage.getItem(AI_STORE_KEY)) || []; } catch { return []; } }
+        function saveAIHistory(list) { localStorage.setItem(AI_STORE_KEY, JSON.stringify(list)); }
+        function getCurrentSection() {
+            const active = document.querySelector('.nav-item.active');
+            return active ? active.dataset.section : 'dashboard';
+        }
+        function isDashboard() { return getCurrentSection() === 'dashboard'; }
+        function toggleFloatingAIVisibility() {
+            const toggle = document.getElementById('floating-ai-toggle');
+            const panel = document.getElementById('floating-ai-panel');
+            const show = !isDashboard();
+            toggle.style.display = show ? 'flex' : 'none';
+            panel.style.display = show && panel.dataset.open === 'true' ? 'flex' : 'none';
+        }
+        function addFloatingAIMessage(text, who='bot') {
+            const body = document.getElementById('floating-ai-body');
+            const msg = document.createElement('div');
+            msg.className = `floating-ai-message ${who}`;
+            msg.innerHTML = text;
+            body.appendChild(msg);
+            body.scrollTop = body.scrollHeight;
+        }
+        function seedFloatingAISuggestions() {
+            const suggest = document.getElementById('floating-ai-suggest');
+            const section = getCurrentSection();
+            const chipsBySection = {
+                investments: ['What are top ETFs now?','Show rebalancing plan','Scan my risk'],
+                transactions: ['Summarize this month','Any unusual spend?','Create a savings tip'],
+                budget: ['Optimize my budget','Where can I cut 10%?','What rewards can I earn?'],
+                analytics: ['Explain trends','Why did spending spike?','Forecast next month'],
+                settings: ['Recommend settings','Help with 2FA','Privacy tips']
+            };
+            suggest.innerHTML = '';
+            (chipsBySection[section] || ['Help me use this page','What can you do?']).forEach(label => {
+                const chip = document.createElement('span');
+                chip.className = 'floating-ai-chip';
+                chip.textContent = label;
+                chip.addEventListener('click', () => handleFloatingAIQuery(label));
+                suggest.appendChild(chip);
+            });
+        }
+        function handleFloatingAIQuery(input) {
+            const history = loadAIHistory();
+            addFloatingAIMessage(input, 'user');
+            history.push({ who:'user', text: input, ts: Date.now(), section: getCurrentSection() });
+            saveAIHistory(history);
+            setTimeout(() => {
+                const section = getCurrentSection();
+                const witty = ['✨','🤖','🚀','🧠','💡'][Math.floor(Math.random()*5)];
+                const reply = section === 'investments'
+                    ? `${witty} Based on your profile, consider diversifying across growth and dividend ETFs. Want 3 ideas?`
+                    : section === 'budget'
+                    ? `${witty} I found two categories where you can save 8-12%. Want an auto-savings plan?`
+                    : section === 'transactions'
+                    ? `${witty} Your average daily spend is trending down. Shall I flag anomalies next month?`
+                    : section === 'analytics'
+                    ? `${witty} Spending peaked last month due to travel. I can generate a forecast chart.`
+                    : `${witty} I’m your sidekick here. Ask me to guide or automate tasks!`;
+                addFloatingAIMessage(reply, 'bot');
+                const h2 = loadAIHistory();
+                h2.push({ who:'bot', text: reply, ts: Date.now(), section });
+                saveAIHistory(h2);
+            }, 600);
+        }
+        function restoreFloatingAIHistory() {
+            const history = loadAIHistory();
+            const body = document.getElementById('floating-ai-body');
+            body.innerHTML = '';
+            history.slice(-30).forEach(m => addFloatingAIMessage(m.text, m.who));
+        }
+        function wireFloatingAI() {
+            const toggle = document.getElementById('floating-ai-toggle');
+            const panel = document.getElementById('floating-ai-panel');
+            const input = document.getElementById('floating-ai-input');
+            const send = document.getElementById('floating-ai-send');
+            const close = document.getElementById('floating-ai-close');
+            toggle.addEventListener('click', () => {
+                panel.dataset.open = panel.dataset.open === 'true' ? 'false' : 'true';
+                panel.style.display = panel.dataset.open === 'true' ? 'flex' : 'none';
+                if (panel.dataset.open === 'true') {
+                    restoreFloatingAIHistory();
+                    seedFloatingAISuggestions();
+                }
+            });
+            close.addEventListener('click', () => { panel.dataset.open = 'false'; panel.style.display = 'none'; });
+            send.addEventListener('click', () => { if (input.value.trim()) { handleFloatingAIQuery(input.value.trim()); input.value = ''; } });
+            input.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); send.click(); } });
+        }
+        
+        // ===== Persistent State (localStorage) =====
+        const STORAGE_KEYS = {
+            transactions: 'nf_transactions',
+            budgets: 'nf_budgets',
+            investPrefs: 'nf_invest_prefs'
+        };
+        
+        function loadState(key, fallback) {
+            try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
+        }
+        function saveState(key, value) {
+            localStorage.setItem(key, JSON.stringify(value));
+        }
+        
+        // Seed transactions from DOM once
+        function seedTransactionsIfEmpty() {
+            const existing = loadState(STORAGE_KEYS.transactions, null);
+            if (existing) return;
+            const txns = [];
+            document.querySelectorAll('#section-transactions .transaction-row').forEach(row => {
+                txns.push({
+                    date: row.querySelector('.t-date')?.textContent.trim(),
+                    desc: row.querySelector('.t-desc')?.textContent.trim(),
+                    cat: row.querySelector('.t-cat')?.textContent.trim(),
+                    amt: parseCurrency(row.querySelector('.t-amt')?.textContent || '0')
+                });
+            });
+            saveState(STORAGE_KEYS.transactions, txns);
+        }
+        
+        function renderTransactionsFromState() {
+            const list = document.getElementById('transactions-list');
+            if (!list) return;
+            const txns = loadState(STORAGE_KEYS.transactions, []);
+            list.innerHTML = '';
+            txns.forEach((t, idx) => {
+                const row = document.createElement('div');
+                row.className = 'transaction-row';
+                row.dataset.index = idx;
+                row.innerHTML = `<div class="t-date">${t.date}</div><div class="t-desc">${t.desc}</div><div class="t-cat">${t.cat}</div><div class="t-amt">₹${t.amt.toFixed(2)}</div><div class="txn-actions"><button class="icon-btn" data-action="edit"><span class="material-icons">edit</span></button><button class="icon-btn" data-action="delete"><span class="material-icons">delete</span></button></div>`;
+                list.appendChild(row);
+            });
+        }
+        
+        // Persist budgets
+        function loadBudgetsIntoDOM() {
+            const budgets = loadState(STORAGE_KEYS.budgets, null);
+            if (!budgets) return;
+            document.querySelectorAll('#budget-summary .budget-row').forEach(row => {
+                const cat = row.querySelector('.b-cat')?.textContent.trim();
+                if (!cat) return;
+                const val = budgets[cat];
+                if (typeof val === 'number') {
+                    row.querySelector('.b-amt').textContent = `₹${val.toFixed(2)}`;
+                }
+            });
+        }
+        function persistBudgetsFromDOM() {
+            const budgets = {};
+            document.querySelectorAll('#budget-summary .budget-row').forEach(row => {
+                const cat = row.querySelector('.b-cat')?.textContent.trim();
+                const amt = parseCurrency(row.querySelector('.b-amt')?.textContent || '0');
+                if (cat) budgets[cat] = amt;
+            });
+            saveState(STORAGE_KEYS.budgets, budgets);
+        }
+        
+        // Investment preferences
+        function loadInvestPrefs() {
+            const prefs = loadState(STORAGE_KEYS.investPrefs, null);
+            if (!prefs) return;
+            document.getElementById('invest-goal').value = prefs.goal;
+            document.getElementById('invest-risk').value = prefs.risk;
+            document.getElementById('invest-horizon').value = prefs.horizon;
+            document.getElementById('invest-sector').value = prefs.sector;
+        }
+        function persistInvestPrefs() {
+            const prefs = {
+                goal: document.getElementById('invest-goal').value,
+                risk: document.getElementById('invest-risk').value,
+                horizon: document.getElementById('invest-horizon').value,
+                sector: document.getElementById('invest-sector').value,
+            };
+            saveState(STORAGE_KEYS.investPrefs, prefs);
+        }
+        
+        document.getElementById('save-invest-prefs')?.addEventListener('click', () => {
+            persistInvestPrefs();
+            generateInvestmentSuggestions();
+            showToast('Investment profile saved');
+        });
+        
+        // Hook: budget edits
+        document.querySelectorAll('#budget-summary .b-amt').forEach(node => {
+            node.addEventListener('blur', () => { persistBudgetsFromDOM(); renderBudgetProgress(); });
+            node.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); node.blur(); } });
+        });
+        
+        // Hook: expense submission to storage
+        document.getElementById('expense-form')?.addEventListener('submit', function() {
+            const txns = loadState(STORAGE_KEYS.transactions, []);
+            const newTxn = {
+                date: document.getElementById('expense-date').value || new Date().toLocaleDateString(),
+                desc: document.getElementById('expense-desc').value.trim(),
+                cat: document.getElementById('expense-category').value,
+                amt: parseFloat(document.getElementById('expense-amount').value || '0')
+            };
+            if (newTxn.desc && newTxn.amt > 0) {
+                txns.unshift(newTxn);
+                saveState(STORAGE_KEYS.transactions, txns);
+                renderTransactionsFromState();
+                renderBudgetProgress();
+                renderAnalyticsFromState();
+            }
+        });
+        
+        // Delegated handlers for edit/delete
+        document.getElementById('transactions-list').addEventListener('click', function(e) {
+            const actionBtn = e.target.closest('.icon-btn');
+            if (!actionBtn) return;
+            const action = actionBtn.getAttribute('data-action');
+            const row = actionBtn.closest('.transaction-row');
+            const idx = Number(row?.dataset.index);
+            if (!Number.isFinite(idx)) return;
+            const txns = loadState(STORAGE_KEYS.transactions, []);
+            if (action === 'delete') {
+                txns.splice(idx, 1);
+                saveState(STORAGE_KEYS.transactions, txns);
+                renderTransactionsFromState();
+                renderBudgetProgress();
+                renderAnalyticsFromState();
+                showToast('Transaction deleted');
+            } else if (action === 'edit') {
+                const t = txns[idx];
+                const date = prompt('Date (MM/DD/YYYY):', t.date) || t.date;
+                const desc = prompt('Description:', t.desc) || t.desc;
+                const cat = prompt('Category:', t.cat) || t.cat;
+                const amtStr = prompt('Amount:', String(t.amt)) || String(t.amt);
+                const amt = parseFloat(amtStr);
+                if (!isNaN(amt)) {
+                    txns[idx] = { date, desc, cat, amt };
+                    saveState(STORAGE_KEYS.transactions, txns);
+                    renderTransactionsFromState();
+                    renderBudgetProgress();
+                    renderAnalyticsFromState();
+                    showToast('Transaction updated');
+                } else {
+                    showToast('Invalid amount');
+                }
+            }
+        });
+        
+        // ===== Budget Progress & Rewards =====
+        function parseCurrency(text) {
+            return Number(text.replace(/[^0-9.\-]/g, '')) || 0;
+        }
+        
+        function getBudgetLimits() {
+            const limits = {};
+            document.querySelectorAll('#budget-summary .budget-row').forEach(row => {
+                const cat = row.querySelector('.b-cat')?.textContent.trim();
+                const amt = parseCurrency(row.querySelector('.b-amt')?.textContent || '0');
+                if (cat) limits[cat] = amt;
+            });
+            return limits;
+        }
+        
+        function computeSpendingByCategory() {
+            const spending = {};
+            document.querySelectorAll('#section-transactions .transaction-row').forEach(row => {
+                const cat = row.querySelector('.t-cat')?.textContent.trim();
+                const amt = parseCurrency(row.querySelector('.t-amt')?.textContent || '0');
+                if (!cat) return;
+                spending[cat] = (spending[cat] || 0) + amt;
+            });
+            return spending;
+        }
+        
+        function renderBudgetProgress() {
+            const limits = getBudgetLimits();
+            const spending = computeSpendingByCategory();
+            document.querySelectorAll('#budget-summary .budget-progress').forEach(wrapper => {
+                const cat = wrapper.getAttribute('data-cat');
+                const bar = wrapper.querySelector('.budget-progress-bar');
+                if (!cat || !bar) return;
+                const limit = limits[cat] || 0;
+                const spent = spending[cat] || 0;
+                const pct = limit > 0 ? Math.min(100, Math.round((spent / limit) * 100)) : 0;
+                bar.classList.remove('warn', 'over');
+                if (pct >= 90 && pct < 100) bar.classList.add('warn');
+                if (pct >= 100) bar.classList.add('over');
+                bar.style.width = pct + '%';
+                let meta = wrapper.nextElementSibling;
+                if (!meta || !meta.classList || !meta.classList.contains('budget-progress-meta')) {
+                    meta = document.createElement('div');
+                    meta.className = 'budget-progress-meta';
+                    wrapper.parentNode.insertBefore(meta, wrapper.nextSibling);
+                }
+                meta.innerHTML = `<span>Spent: ₹${spent.toFixed(2)}</span><span>Limit: ₹${limit.toFixed(2)}</span>`;
+            });
+            renderRewards(limits, spending);
+        }
+        
+        function renderRewards(limits, spending) {
+            const rewardsList = document.getElementById('rewards-list');
+            if (!rewardsList) return;
+            rewardsList.innerHTML = '';
+            const totalLimit = Object.values(limits).reduce((a,b)=>a+b,0) || 1;
+            const totalSpent = Object.keys(limits).reduce((sum, cat)=> sum + (spending[cat] || 0), 0);
+            const totalPct = Math.round((totalSpent / totalLimit) * 100);
+            const rewards = [];
+            if (totalPct <= 50) rewards.push({text: 'Budget Bronze: < 50% spent', cls: 'success'});
+            if (totalPct <= 75) rewards.push({text: 'Saver Streak: 25% under target', cls: 'success'});
+            if (totalPct >= 90 && totalPct < 100) rewards.push({text: 'Caution Zone: 90% of total budget', cls: 'warning'});
+            if (totalPct >= 100) rewards.push({text: 'Over Budget: Review expenses', cls: 'danger'});
+            Object.keys(limits).forEach(cat => {
+                const limit = limits[cat] || 0;
+                const spent = spending[cat] || 0;
+                if (limit === 0) return;
+                const pct = Math.round((spent / limit) * 100);
+                if (pct <= 60) rewards.push({text: `${cat}: Great control (${pct}%)`, cls: 'success'});
+                if (pct >= 95 && pct < 100) rewards.push({text: `${cat}: Near limit (${pct}%)`, cls: 'warning'});
+                if (pct >= 100) rewards.push({text: `${cat}: Over budget (${pct}%)`, cls: 'danger'});
+            });
+            if (rewards.length === 0) rewards.push({text: 'Track spending to unlock rewards!', cls: ''});
+            rewards.slice(0, 6).forEach(r => {
+                const span = document.createElement('span');
+                span.className = `reward-badge ${r.cls}`.trim();
+                span.innerHTML = r.text;
+                rewardsList.appendChild(span);
+            });
+        }
+        
+        function maybeRenderBudget() {
+            const budgetSection = document.getElementById('section-budget');
+            if (budgetSection && budgetSection.style.display !== 'none') {
+                renderBudgetProgress();
+            }
+        }
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                setTimeout(() => {
+                    maybeRenderBudget();
+                    toggleFloatingAIVisibility();
+                    seedFloatingAISuggestions();
+                }, 50);
+            });
+        });
+        
+        // ===== Analytics from state =====
+        function renderAnalyticsFromState() {
+            const txns = loadState(STORAGE_KEYS.transactions, []);
+            const total = txns.reduce((s, t) => s + t.amt, 0);
+            const count = txns.length;
+            const byCat = txns.reduce((m, t) => { m[t.cat] = (m[t.cat] || 0) + t.amt; return m; }, {});
+            const topCat = Object.entries(byCat).sort((a,b)=>b[1]-a[1])[0]?.[0] || '—';
+            document.getElementById('a-total').textContent = `₹${total.toFixed(2)}`;
+            document.getElementById('a-count').textContent = String(count);
+            document.getElementById('a-top').textContent = topCat;
+            // Update charts if available
+            if (window.aMonthlyChart) {
+                const months = Array(12).fill(0);
+                txns.forEach(t => {
+                    const d = new Date(t.date);
+                    const m = Number.isFinite(d.getMonth()) ? d.getMonth() : 0;
+                    months[m] += t.amt;
+                });
+                window.aMonthlyChart.data.datasets[0].data = months.map(v => Math.round(v));
+                window.aMonthlyChart.update();
+            }
+            if (window.aCategoryChart) {
+                const labels = ['Housing','Food','Transportation','Utilities','Entertainment','Savings'];
+                const data = labels.map(l => byCat[l] || 0);
+                window.aCategoryChart.data.datasets[0].data = data.map(v => Math.round(v));
+                window.aCategoryChart.update();
+            }
+            // Update top categories list
+            const topcats = document.getElementById('a-topcats');
+            if (topcats) {
+                const sorted = Object.entries(byCat).sort((a,b)=>b[1]-a[1]).slice(0,5);
+                topcats.innerHTML = '';
+                sorted.forEach((entry, idx) => {
+                    const name = document.createElement('div');
+                    name.textContent = `${idx+1}. ${entry[0]}`;
+                    const value = document.createElement('div');
+                    value.style.textAlign = 'right';
+                    value.style.fontWeight = '600';
+                    value.textContent = `₹${entry[1].toFixed(2)}`;
+                    topcats.appendChild(name);
+                    topcats.appendChild(value);
+                });
+            }
+        }
+        
+        // Boot sequence on load (for localStorage-based features)
+        window.addEventListener('load', () => {
+            seedTransactionsIfEmpty();
+            renderTransactionsFromState();
+            loadBudgetsIntoDOM();
+            loadInvestPrefs();
+            persistBudgetsFromDOM();
+            renderBudgetProgress();
+            renderAnalyticsFromState();
+            wireFloatingAI();
+            toggleFloatingAIVisibility();
+            seedFloatingAISuggestions();
+            // Note: API data loading is handled in DOMContentLoaded
+        });
+    </script>
+</body>
+</html>
