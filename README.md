@@ -2,8 +2,6 @@
 
 This is a full-stack web application designed to help users manage their finances and achieve their goals using AI-driven insights and personalized recommendations.
 
-**Live Frontend (Vercel):** [Your Vercel URL - e.g., https://nexus-finance-ai-umber.vercel.app]
-**Live Backend (Render):** [Your Render URL - e.g., https://nexus-finance-ai.onrender.com]
 
 ---
 
